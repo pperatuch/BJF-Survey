@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'ehr' => [
+        'url' => env('NEXT_PUBLIC_API_URL', 'https://ehr.bjc.co.th/api/lv13'),
+        'key' => env('API_KEY', ''),
+    ],
+
 ];

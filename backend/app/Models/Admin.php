@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class Admin extends Model
+class Admin extends Authenticatable
 {
     protected $table = 'admins';
 
     public $timestamps = false;
 
+    // Disable default passwords & emails casts since AD credentials are not stored locally
     protected $fillable = [
         'employee_id',
         'role',
@@ -20,3 +21,4 @@ class Admin extends Model
         'created_at' => 'datetime',
     ];
 }
+

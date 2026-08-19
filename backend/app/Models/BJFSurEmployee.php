@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class BJFSurEmployee extends Model
 {
+    use HasFactory;
+
     protected $table = 'BJFSur_employees';
 
     protected $fillable = [
@@ -55,3 +58,4 @@ class BJFSurEmployee extends Model
         'submitted_at' => 'datetime',
     ];
 }
+
