@@ -8,12 +8,17 @@ class Admin extends Authenticatable
 {
     protected $table = 'admins';
 
+    public $timestamps = false;
+
     // Disable default passwords & emails casts since AD credentials are not stored locally
     protected $fillable = [
         'employee_id',
         'role',
+        'created_at',
     ];
 
-    public $timestamps = false;
+    protected $casts = [
+        'created_at' => 'datetime',
+    ];
 }
 

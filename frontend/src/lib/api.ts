@@ -1,14 +1,14 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api', // Use env variable for base URL, fallback to /api for dev
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
 });
 
-// Request Interceptor: Attach the Sanctum token if it exists
+// Request Interceptor: Attach the token if it exists
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('bjf_auth_token') || localStorage.getItem('ceo_auth_token');
@@ -39,3 +39,4 @@ api.interceptors.response.use(
 );
 
 export default api;
+

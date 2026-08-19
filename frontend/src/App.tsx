@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import SurveyResponsesPage from './pages/SurveyResponsesPage';
+import SurveyPage from './pages/SurveyPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuthStore } from './store/useAuthStore';
 
@@ -21,6 +22,11 @@ function AppContent() {
 
   return (
     <Routes>
+      {/* Public Employee Survey Route */}
+      <Route path="/" element={<SurveyPage />} />
+      <Route path="/survey" element={<SurveyPage />} />
+
+      {/* Admin Authentication & Dashboard Routes */}
       <Route path="/login" element={<LoginPage />} />
       <Route
         path="/responses"
@@ -30,11 +36,9 @@ function AppContent() {
           </ProtectedRoute>
         }
       />
-      <Route
-        path="/"
-        element={<Navigate replace to="/responses" />}
-      />
-      <Route path="*" element={<Navigate replace to="/responses" />} />
+
+      {/* Fallback Route */}
+      <Route path="*" element={<Navigate replace to="/" />} />
     </Routes>
   );
 }
@@ -46,5 +50,6 @@ export default function App() {
     </BrowserRouter>
   );
 }
+
 
 
