@@ -1,16 +1,50 @@
+import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import LoginPage from './pages/LoginPage';
+import SurveyResponsesPage from './pages/SurveyResponsesPage';
+import ProtectedRoute from './components/ProtectedRoute';
+import { useAuthStore } from './store/useAuthStore';
+
+function AppContent() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      useAuthStore.setState({ user: null, token: null, isAuthenticated: false, isLoading: false });
+      localStorage.removeItem('bjf_auth_token');
+      navigate('/login', { replace: true });
+    };
+
+    window.addEventListener('auth:unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('auth:unauthorized', handleUnauthorized);
+  }, [navigate]);
+
+  return (
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route
+        path="/responses"
+        element={
+          <ProtectedRoute>
+            <SurveyResponsesPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/"
+        element={<Navigate replace to="/responses" />}
+      />
+      <Route path="*" element={<Navigate replace to="/responses" />} />
+    </Routes>
+  );
+}
+
 export default function App() {
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6">
-      <div className="max-w-md w-full bg-white rounded-xl shadow-md p-8 text-center border border-slate-100">
-        <h1 className="text-2xl font-bold text-slate-800 mb-2">BJF-Survey</h1>
-        <p className="text-slate-600 mb-6">
-          Project Initialized with React + TypeScript + Vite + TailwindCSS & Laravel API Backend
-        </p>
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 text-sm font-medium rounded-full border border-emerald-200">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          Ready for Development
-        </div>
-      </div>
-    </div>
-  )
+    <BrowserRouter basename="/survey/bjf-survey">
+      <AppContent />
+    </BrowserRouter>
+  );
 }
+
+
