@@ -3,14 +3,14 @@ import {
   ArrowLeft,
   ArrowRight,
   CheckCircle2,
-  Lock,
   Sparkles,
   ThumbsUp,
   ThumbsDown,
-  Clock,
+  Frown,
+  Meh,
+  Smile,
   Send,
   RotateCcw,
-  UserCheck,
   ShieldCheck,
   FileCheck2,
 } from 'lucide-react';
@@ -97,58 +97,61 @@ export const FREQUENCY_OPTIONS = [
     value: 1,
     label: 'ไม่เคย',
     engLabel: 'Never',
-    color: 'hover:border-rose-300 hover:bg-rose-50/70 text-slate-700',
-    selectedBg: 'bg-gradient-to-br from-rose-500 to-rose-600 text-white shadow-rose-200 border-rose-600',
-    icon: Clock,
+    color: 'hover:border-rose-300 hover:bg-rose-50/70 text-slate-700 hover:shadow-rose-100',
+    selectedBg: 'bg-gradient-to-br from-rose-500 to-rose-600 text-white shadow-lg shadow-rose-500/30 border-rose-600 ring-2 ring-rose-300 ring-offset-2',
+    iconBg: 'bg-rose-50 text-rose-500 group-hover:bg-rose-100/80',
+    icon: Frown,
   },
   {
     value: 2,
     label: 'บางครั้ง',
     engLabel: 'Sometimes',
-    color: 'hover:border-amber-300 hover:bg-amber-50/70 text-slate-700',
-    selectedBg: 'bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-amber-200 border-amber-600',
-    icon: Clock,
+    color: 'hover:border-amber-300 hover:bg-amber-50/70 text-slate-700 hover:shadow-amber-100',
+    selectedBg: 'bg-gradient-to-br from-amber-500 to-amber-600 text-white shadow-lg shadow-amber-500/30 border-amber-600 ring-2 ring-amber-300 ring-offset-2',
+    iconBg: 'bg-amber-50 text-amber-500 group-hover:bg-amber-100/80',
+    icon: Meh,
   },
   {
     value: 3,
     label: 'เป็นประจำ',
     engLabel: 'Always',
-    color: 'hover:border-emerald-300 hover:bg-emerald-50/70 text-slate-700',
-    selectedBg: 'bg-gradient-to-br from-emerald-600 to-[#00A651] text-white shadow-emerald-200 border-emerald-600',
-    icon: Clock,
+    color: 'hover:border-emerald-300 hover:bg-emerald-50/70 text-slate-700 hover:shadow-emerald-100',
+    selectedBg: 'bg-gradient-to-br from-emerald-500 to-[#00A651] text-white shadow-lg shadow-emerald-500/30 border-[#00A651] ring-2 ring-emerald-300 ring-offset-2',
+    iconBg: 'bg-emerald-50 text-[#00A651] group-hover:bg-emerald-100/80',
+    icon: Smile,
   },
 ];
 
 export const YES_NO_OPTIONS = [
   {
     value: 1,
-    label: 'ใช่ (Yes)',
-    engLabel: 'ใช่ / เห็นด้วย',
-    color: 'hover:border-emerald-300 hover:bg-emerald-50/70 text-slate-700',
-    selectedBg: 'bg-gradient-to-br from-emerald-600 to-[#00A651] text-white shadow-emerald-200 border-emerald-600',
+    label: 'ใช่',
+    engLabel: 'Yes / เห็นด้วย',
+    color: 'hover:border-emerald-300 hover:bg-emerald-50/70 text-slate-700 hover:shadow-emerald-100',
+    selectedBg: 'bg-gradient-to-br from-emerald-500 to-[#00A651] text-white shadow-lg shadow-emerald-500/30 border-[#00A651] ring-2 ring-emerald-300 ring-offset-2',
+    iconBg: 'bg-emerald-50 text-[#00A651] group-hover:bg-emerald-100/80',
     icon: ThumbsUp,
   },
   {
     value: 0,
-    label: 'ไม่ใช่ (No)',
-    engLabel: 'ไม่ใช่ / ไม่เห็นด้วย',
-    color: 'hover:border-rose-300 hover:bg-rose-50/70 text-slate-700',
-    selectedBg: 'bg-gradient-to-br from-rose-500 to-rose-600 text-white shadow-rose-200 border-rose-600',
+    label: 'ไม่ใช่',
+    engLabel: 'No / ไม่เห็นด้วย',
+    color: 'hover:border-rose-300 hover:bg-rose-50/70 text-slate-700 hover:shadow-rose-100',
+    selectedBg: 'bg-gradient-to-br from-rose-500 to-rose-600 text-white shadow-lg shadow-rose-500/30 border-rose-600 ring-2 ring-rose-300 ring-offset-2',
+    iconBg: 'bg-rose-50 text-rose-500 group-hover:bg-rose-100/80',
     icon: ThumbsDown,
   },
 ];
 
+import api from '@/lib/api';
+
 export default function SurveyPage() {
   // Navigation & User State
   const [individualCode, setIndividualCode] = useState('');
-  const [validatedUser, setValidatedUser] = useState<{
-    id: string;
-    employeeName: string;
-    employeeId: string;
-    roleName: string;
-  } | null>(null);
+  const [validatedCode, setValidatedCode] = useState<string | null>(null);
   const [authError, setAuthError] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   // Survey Form Step: 0 to 8 = Q1 to Q9, 9 = Preview, 10 = Success
   const [currentStep, setCurrentStep] = useState(0);
@@ -168,10 +171,11 @@ export default function SurveyPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Handle Verify Individual Code (Mocked for UI preview)
-  const handleVerifyCode = (e: React.FormEvent) => {
+  // Handle Verify Individual Code
+  const handleVerifyCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!individualCode.trim()) {
+    const cleanCode = individualCode.trim();
+    if (!cleanCode) {
       setAuthError('กรุณากรอกรหัสประจำตัว (Individual Code)');
       return;
     }
@@ -179,34 +183,65 @@ export default function SurveyPage() {
     setIsVerifying(true);
     setAuthError('');
 
-    // Simulate API lookup
-    setTimeout(() => {
+    try {
+      const res = await api.post('/survey/verify-code', { code: cleanCode });
+      if (res.data.success) {
+        setValidatedCode(res.data.data.access_code);
+        setCurrentStep(0);
+      }
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.message ||
+        'เกิดข้อผิดพลาดในการตรวจสอบรหัส กรุณาลองใหม่อีกครั้ง';
+      setAuthError(msg);
+    } finally {
       setIsVerifying(false);
-      // Valid simulation
-      setValidatedUser({
-        id: individualCode.trim(),
-        employeeName: 'คุณพนักงานทดสอบ ระบบสำรวจ',
-        employeeId: 'BJC-98721',
-        roleName: 'พนักงานทั่วไป (Staff)',
-      });
-      setCurrentStep(0);
-    }, 600);
+    }
   };
 
   const handleSelectOption = (qId: string, val: number) => {
     setAnswers((prev) => ({ ...prev, [qId]: val }));
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < 9) {
       setCurrentStep((prev) => prev + 1);
     } else if (currentStep === 9) {
-      // Submit
+      // Submit to Backend API
+      if (!validatedCode) {
+        setSubmitError('ไม่พบรหัสผู้ตอบ กรุณาเข้าสู่ระบบใหม่อีกครั้ง');
+        return;
+      }
+
       setIsSubmitting(true);
-      setTimeout(() => {
+      setSubmitError('');
+
+      try {
+        const payload = {
+          code: validatedCode,
+          q1: Number(answers.q1),
+          q2: Number(answers.q2),
+          q3: Number(answers.q3),
+          q4: Number(answers.q4),
+          q5: Number(answers.q5),
+          q6: answers.q6 === 1 || answers.q6 === '1' || answers.q6 === 'ใช่' ? 'ใช่' : 'ไม่ใช่',
+          q7: answers.q7 === 1 || answers.q7 === '1' || answers.q7 === 'ใช่' ? 'ใช่' : 'ไม่ใช่',
+          q8: answers.q8 === 1 || answers.q8 === '1' || answers.q8 === 'ใช่' ? 'ใช่' : 'ไม่ใช่',
+          q9: typeof answers.q9 === 'string' && answers.q9.trim() ? answers.q9.trim() : null,
+        };
+
+        const res = await api.post('/survey/submit', payload);
+        if (res.data.success) {
+          setCurrentStep(10); // Success Step
+        }
+      } catch (err: any) {
+        const msg =
+          err?.response?.data?.message ||
+          'เกิดข้อผิดพลาดในการส่งแบบสำรวจ กรุณาลองใหม่อีกครั้ง';
+        setSubmitError(msg);
+      } finally {
         setIsSubmitting(false);
-        setCurrentStep(10); // Success Step
-      }, 900);
+      }
     }
   };
 
@@ -216,13 +251,31 @@ export default function SurveyPage() {
     }
   };
 
+  // Compute how far the user is allowed to jump (must answer sequentially)
+  const maxAllowedStep = React.useMemo(() => {
+    let max = 0;
+    for (let i = 0; i < QUESTIONS.length; i++) {
+      const q = QUESTIONS[i];
+      const isAnswered = q.type === 'text' || (answers[q.id] !== '' && answers[q.id] !== undefined);
+      if (isAnswered) {
+        max = i + 1;
+      } else {
+        break;
+      }
+    }
+    return max;
+  }, [answers]);
+
   const handleJumpToStep = (step: number) => {
-    setCurrentStep(step);
+    if (step <= maxAllowedStep) {
+      setCurrentStep(step);
+    }
   };
 
   const resetForm = () => {
-    setValidatedUser(null);
+    setValidatedCode(null);
     setIndividualCode('');
+    setSubmitError('');
     setCurrentStep(0);
     setAnswers({
       q1: '',
@@ -252,7 +305,7 @@ export default function SurveyPage() {
   // -------------------------------------------------------------
   // 1. LOGIN / ENTER INDIVIDUAL CODE VIEW
   // -------------------------------------------------------------
-  if (!validatedUser) {
+  if (!validatedCode) {
     return (
       <div className="min-h-screen bg-[#F4F7F6] relative overflow-hidden flex flex-col justify-between">
         {/* Soft Background Gradients */}
@@ -264,19 +317,23 @@ export default function SurveyPage() {
         {/* Top Header */}
         <header className="relative z-10 w-full px-6 py-6 max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#00A651] to-emerald-400 flex items-center justify-center text-white font-extrabold text-lg shadow-md shadow-emerald-600/20">
-              BJF
-            </div>
-            <div>
-              <span className="font-extrabold text-lg tracking-tight text-[#0B3C5D] block">
+            <img
+              src={`${import.meta.env.BASE_URL}Logo.png`}
+              alt="BJC Big C Logo"
+              className="h-9 sm:h-11 object-contain hover:scale-105 transition-transform duration-300 drop-shadow-xs"
+            />
+            <div className="border-l border-slate-300 pl-3">
+              <span className="font-extrabold text-base sm:text-lg tracking-tight text-[#0B3C5D] block">
                 BJF Survey
               </span>
-              <span className="text-xs text-[#0B3C5D]/60 font-medium">ระบบสำรวจความคิดเห็นพนักงาน</span>
+              <span className="text-[11px] sm:text-xs text-[#0B3C5D]/60 font-medium">
+                ระบบสำรวจความคิดเห็นพนักงาน
+              </span>
             </div>
           </div>
           <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/80 border border-slate-200/80 text-xs font-semibold text-[#0B3C5D]">
             <ShieldCheck className="w-4 h-4 text-[#00A651]" />
-            ปลอดภัย & เก็บข้อมูลเป็นความลับ
+            ปลอดภัย & เก็บคำตอบของคุณเป็นความลับ
           </div>
         </header>
 
@@ -284,22 +341,24 @@ export default function SurveyPage() {
         <main className="relative z-10 flex-1 flex items-center justify-center px-4 py-8">
           <div className="w-full max-w-md bg-white/90 backdrop-blur-xl border border-white/80 shadow-2xl rounded-3xl p-8 sm:p-10 animate-fade-slide-up">
             <div className="text-center mb-8">
-              <div className="w-16 h-16 rounded-2xl bg-emerald-50 text-[#00A651] flex items-center justify-center mx-auto mb-4 border border-emerald-100 shadow-inner">
-                <Lock className="w-8 h-8" />
-              </div>
+              <img
+                src={`${import.meta.env.BASE_URL}Logo.png`}
+                alt="BJC Big C Logo"
+                className="h-12 sm:h-14 mx-auto mb-5 object-contain hover:scale-105 transition-transform duration-300 drop-shadow-xs"
+              />
               <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0B3C5D] tracking-tight">
-                แบบสำรวจความโปร่งใส
+                BJF Survey
               </h1>
               <p className="text-sm text-[#0B3C5D]/70 mt-2 leading-relaxed">
-                กรุณากรอก <span className="font-bold text-[#00A651]">Individual Code (UUID)</span>{' '}
-                ที่ท่านได้รับ เพื่อเข้าทำแบบสอบถาม
+                กรุณากรอก <span className="font-bold text-[#00A651]">Individual Code</span>{' '}
+                ที่ท่านได้รับ
               </p>
             </div>
 
             <form onSubmit={handleVerifyCode} className="space-y-5">
               <div>
                 <label className="block text-xs font-bold text-[#0B3C5D] uppercase tracking-wider mb-2">
-                  Individual Code / รหัสประจำตัว
+                  Individual Code
                 </label>
                 <div className="relative">
                   <input
@@ -309,12 +368,9 @@ export default function SurveyPage() {
                       setIndividualCode(e.target.value);
                       setAuthError('');
                     }}
-                    placeholder="เช่น e9b1c73a-4a2e-4e6f-..."
+                    placeholder="รหัสที่ได้จากผู้จัดการสาขา"
                     className="w-full pl-4 pr-10 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-mono text-[#0B3C5D] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#00A651]/30 focus:border-[#00A651] focus:bg-white transition-all shadow-inner"
                   />
-                  <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400">
-                    <Sparkles className="w-4 h-4" />
-                  </div>
                 </div>
                 {authError && (
                   <p className="text-xs text-rose-500 font-semibold mt-2 pl-1 animate-fade-slide-up">
@@ -324,16 +380,16 @@ export default function SurveyPage() {
               </div>
 
               {/* Quick sample button for test preview */}
-              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200/70 text-xs text-slate-600 flex items-center justify-between">
-                <span>กดเพื่อใส่รหัสตัวอย่าง:</span>
+              {/* <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200/70 text-xs text-slate-600 flex items-center justify-between">
+                <span>กดเพื่อใส่รหัสตัวอย่างจาก DB:</span>
                 <button
                   type="button"
-                  onClick={() => setIndividualCode('550e8400-e29b-41d4-a716-446655440000')}
+                  onClick={() => setIndividualCode('EG72')}
                   className="text-xs font-bold text-[#00A651] hover:underline"
                 >
-                  ใช้รหัส Demo
+                  ใช้รหัส EG72
                 </button>
-              </div>
+              </div> */}
 
               <button
                 type="submit"
@@ -356,7 +412,7 @@ export default function SurveyPage() {
 
             <div className="mt-8 pt-6 border-t border-slate-100 text-center">
               <p className="text-[11px] text-slate-400">
-                ข้อมูลการตอบของท่านจะถูกนำไปใช้เพื่อการพัฒนาวัฒนธรรมองค์กรเท่านั้น
+                ข้อมูลการตอบของท่านจะถูกนำไปใช้เพื่อการพัฒนาองค์กรเท่านั้น
               </p>
             </div>
           </div>
@@ -392,7 +448,7 @@ export default function SurveyPage() {
           </p>
 
           <p className="text-sm text-[#0B3C5D]/70 leading-relaxed mb-8">
-            ความคิดเห็นของท่าน ({validatedUser.employeeName}) ได้รับการบันทึกเข้าสู่ระบบอย่างปลอดภัย
+            ความคิดเห็นของท่านได้รับการบันทึกเข้าสู่ระบบอย่างปลอดภัยและเป็นความลับ
             เพื่อนำไปปรับปรุงและพัฒนาวัฒนธรรมองค์กรให้โปร่งใสต่อไป
           </p>
 
@@ -425,63 +481,71 @@ export default function SurveyPage() {
       </div>
 
       {/* Top App Bar */}
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200/60 shadow-xs">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/70 shadow-xs">
+        <div className="max-w-5xl lg:max-w-6xl mx-auto px-3.5 sm:px-6 lg:px-8 py-2.5 sm:py-3.5 flex items-center justify-between gap-2">
+          {/* Left: Back button + Logo + Title */}
+          <div className="flex items-center gap-2 sm:gap-3.5 min-w-0 flex-1">
             <button
               onClick={handleBack}
               disabled={currentStep === 0}
-              className="p-2 rounded-full hover:bg-slate-100 disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-[#0B3C5D]"
+              className="p-1.5 sm:p-2 -ml-1 rounded-full hover:bg-slate-100 disabled:opacity-25 disabled:hover:bg-transparent transition-colors text-[#0B3C5D] shrink-0"
               title="ย้อนกลับ"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-sm sm:text-base text-[#0B3C5D]">
-                  BJF Survey
-                </span>
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                  {validatedUser.roleName}
-                </span>
-              </div>
-              <p className="text-xs text-[#0B3C5D]/60 truncate max-w-[200px] sm:max-w-xs">
-                ผู้ตอบ: {validatedUser.employeeName} ({validatedUser.employeeId})
-              </p>
+            <img
+              src={`${import.meta.env.BASE_URL}Logo.png`}
+              alt="BJC Big C Logo"
+              className="h-6 sm:h-8 md:h-9 object-contain drop-shadow-xs shrink-0"
+            />
+            <div className="border-l border-slate-200 pl-2 sm:pl-3 min-w-0">
+              <span className="font-extrabold text-sm sm:text-base lg:text-lg text-[#0B3C5D] tracking-tight whitespace-nowrap block">
+                BJF Survey
+              </span>
+              <span className="text-[10px] sm:text-xs text-[#0B3C5D]/60 font-medium whitespace-nowrap block">
+                ระบบสำรวจความคิดเห็นพนักงาน
+              </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="text-right">
-              <span className="text-xs font-bold text-[#0B3C5D] block">
-                {isPreview ? 'ขั้นตอนสุดท้าย' : `ข้อที่ ${currentStep + 1} / ${QUESTIONS.length}`}
-              </span>
-              <span className="text-[11px] font-semibold text-[#00A651]">
-                {progressPercent}% เสร็จสิ้น
-              </span>
-            </div>
+          {/* Right: Step count and progress badge */}
+          <div className="shrink-0 text-right pl-2">
+            <span className="text-xs sm:text-sm font-extrabold text-[#0B3C5D] whitespace-nowrap block">
+              {isPreview ? 'ขั้นตอนสุดท้าย' : `ข้อ ${currentStep + 1}/${QUESTIONS.length}`}
+            </span>
+            <span className="text-[10px] sm:text-xs font-bold text-[#00A651] whitespace-nowrap block">
+              {progressPercent}% เสร็จสิ้น
+            </span>
           </div>
         </div>
 
         {/* Interactive Segmented Progress Bar */}
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-3 pt-1">
-          <div className="flex items-center gap-1.5">
+        <div className="max-w-5xl lg:max-w-6xl mx-auto px-3.5 sm:px-6 lg:px-8 pb-2.5 sm:pb-3 pt-0.5 sm:pt-1">
+          <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2">
             {Array.from({ length: totalSteps }).map((_, stepIdx) => {
               const isFilled = currentStep >= stepIdx;
               const isCurrent = currentStep === stepIdx;
+              const isClickable = stepIdx <= maxAllowedStep;
               return (
                 <div
                   key={stepIdx}
-                  onClick={() => handleJumpToStep(stepIdx)}
+                  onClick={() => {
+                    if (isClickable) handleJumpToStep(stepIdx);
+                  }}
                   role="button"
-                  title={`ไปยัง ${stepIdx === 9 ? 'สรุปผล' : `ข้อ ${stepIdx + 1}`}`}
-                  className={`h-2 flex-1 rounded-full cursor-pointer transition-all duration-300 ${
-                    isCurrent
+                  tabIndex={isClickable ? 0 : -1}
+                  title={
+                    isClickable
+                      ? `ไปยัง ${stepIdx === 9 ? 'สรุปผล' : `ข้อ ${stepIdx + 1}`}`
+                      : `ต้องตอบข้อก่อนหน้าให้ครบก่อน`
+                  }
+                  className={`h-1.5 sm:h-2 md:h-2.5 flex-1 rounded-full transition-all duration-300 ${isClickable ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'
+                    } ${isCurrent
                       ? 'bg-[#00A651] ring-2 ring-emerald-300 ring-offset-1 scale-y-125'
                       : isFilled
-                      ? 'bg-[#00A651] shadow-xs'
-                      : 'bg-slate-200 hover:bg-slate-300'
-                  }`}
+                        ? 'bg-[#00A651] shadow-xs'
+                        : 'bg-slate-200 hover:bg-slate-300'
+                    }`}
                 />
               );
             })}
@@ -490,13 +554,13 @@ export default function SurveyPage() {
       </header>
 
       {/* Main Content Form */}
-      <main className="relative z-10 flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 py-8 flex flex-col justify-center">
+      <main className="relative z-10 flex-1 max-w-4xl lg:max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 flex flex-col justify-center">
         {/* -------------------- QUESTIONS STEP -------------------- */}
         {!isPreview && currentQ && (
-          <div key={currentQ.id} className="animate-fade-slide-up">
+          <div key={currentQ.id} className="animate-fade-slide-up w-full">
             {/* Category Tag & Badge */}
             <div className="flex items-center gap-2 mb-3">
-              <span className="px-3 py-1 rounded-full bg-emerald-50 text-[#00A651] border border-emerald-200/70 text-xs font-extrabold uppercase tracking-wide flex items-center gap-1.5">
+              <span className="px-3 py-1 rounded-full bg-emerald-50 text-[#00A651] border border-emerald-200/70 text-xs font-extrabold uppercase tracking-wide flex items-center gap-1.5 shadow-2xs">
                 <Sparkles className="w-3.5 h-3.5" />
                 {currentQ.category}
               </span>
@@ -506,11 +570,11 @@ export default function SurveyPage() {
             </div>
 
             {/* Question Title */}
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#0B3C5D] leading-snug mb-3 drop-shadow-xs">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#0B3C5D] leading-snug sm:leading-normal mb-2 drop-shadow-xs">
               {currentQ.title}
             </h2>
             {currentQ.subtitle && (
-              <p className="text-sm sm:text-base text-[#0B3C5D]/70 mb-8 font-medium">
+              <p className="text-sm sm:text-base text-[#0B3C5D]/70 mb-6 sm:mb-8 font-medium leading-relaxed">
                 {currentQ.subtitle}
               </p>
             )}
@@ -518,48 +582,50 @@ export default function SurveyPage() {
             {/* Choices rendering */}
             {/* 1. FREQUENCY CHOICES (Q1 - Q5: 3 Choices) */}
             {currentQ.type === 'frequency' && (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4 lg:gap-5 w-full">
                 {FREQUENCY_OPTIONS.map((opt) => {
                   const isSelected = answers[currentQ.id] === opt.value;
+                  const Icon = opt.icon;
                   return (
                     <button
                       key={opt.value}
                       type="button"
                       onClick={() => handleSelectOption(currentQ.id, opt.value)}
-                      className={`group relative p-6 rounded-3xl border-2 text-left sm:text-center transition-all duration-300 cursor-pointer flex sm:flex-col items-center justify-between sm:justify-center gap-3 ${
-                        isSelected
-                          ? `${opt.selectedBg} shadow-xl scale-[1.02]`
-                          : `bg-white/90 border-slate-200/90 shadow-sm ${opt.color} hover:scale-[1.01]`
-                      }`}
-                    >
-                      <div
-                        className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${
-                          isSelected
-                            ? 'bg-white/20 text-white'
-                            : 'bg-slate-100 text-[#0B3C5D] group-hover:bg-white'
+                      className={`group relative p-5 sm:p-6 lg:p-7 rounded-3xl border-2 text-left sm:text-center transition-all duration-300 cursor-pointer flex sm:flex-col items-center justify-between sm:justify-center gap-3.5 ${isSelected
+                        ? `${opt.selectedBg} scale-[1.01] sm:scale-103`
+                        : `bg-white/90 border-slate-200/80 shadow-sm ${opt.color} hover:scale-[1.01]`
                         }`}
+                    >
+                      {/* Icon Container */}
+                      <div
+                        className={`w-13 h-13 sm:w-15 sm:h-15 rounded-2xl flex items-center justify-center transition-all duration-300 ${isSelected
+                          ? 'bg-white/20 text-white shadow-inner scale-110'
+                          : `${opt.iconBg} shadow-xs group-hover:scale-110`
+                          }`}
                       >
-                        <span className="font-extrabold text-lg">{opt.value}</span>
+                        <Icon className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.2]" />
                       </div>
+
+                      {/* Text details */}
                       <div>
                         <div
-                          className={`font-extrabold text-lg ${
-                            isSelected ? 'text-white' : 'text-[#0B3C5D]'
-                          }`}
+                          className={`font-extrabold text-lg sm:text-xl tracking-tight transition-colors ${isSelected ? 'text-white' : 'text-[#0B3C5D]'
+                            }`}
                         >
                           {opt.label}
                         </div>
                         <div
-                          className={`text-xs font-semibold ${
-                            isSelected ? 'text-white/80' : 'text-slate-400'
-                          }`}
+                          className={`text-xs font-semibold mt-0.5 transition-colors ${isSelected ? 'text-white/85' : 'text-slate-400'
+                            }`}
                         >
                           {opt.engLabel}
                         </div>
                       </div>
+
+                      {/* Mobile Selected Check Badge */}
                       {isSelected && (
-                        <div className="sm:hidden text-white">
-                          <CheckCircle2 className="w-6 h-6" />
+                        <div className="sm:hidden text-white bg-white/20 p-1.5 rounded-full">
+                          <CheckCircle2 className="w-5 h-5" />
                         </div>
                       )}
                     </button>
@@ -570,7 +636,7 @@ export default function SurveyPage() {
 
             {/* 2. YES/NO CHOICES (Q6 - Q8) */}
             {currentQ.type === 'yesno' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-5 max-w-2xl mx-auto w-full">
                 {YES_NO_OPTIONS.map((opt) => {
                   const isSelected = answers[currentQ.id] === opt.value;
                   const Icon = opt.icon;
@@ -579,40 +645,41 @@ export default function SurveyPage() {
                       key={opt.value}
                       type="button"
                       onClick={() => handleSelectOption(currentQ.id, opt.value)}
-                      className={`group relative p-6 rounded-3xl border-2 transition-all duration-300 cursor-pointer flex items-center justify-between sm:justify-center gap-4 ${
-                        isSelected
-                          ? `${opt.selectedBg} shadow-xl scale-[1.02]`
-                          : `bg-white/90 border-slate-200/90 shadow-sm ${opt.color} hover:scale-[1.01]`
-                      }`}
-                    >
-                      <div
-                        className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${
-                          isSelected
-                            ? 'bg-white/20 text-white'
-                            : 'bg-slate-100 text-[#0B3C5D] group-hover:bg-white'
+                      className={`group relative p-5 sm:p-6 lg:p-7 rounded-3xl border-2 text-left sm:text-center transition-all duration-300 cursor-pointer flex sm:flex-col items-center justify-between sm:justify-center gap-3.5 ${isSelected
+                        ? `${opt.selectedBg} scale-[1.01] sm:scale-103`
+                        : `bg-white/90 border-slate-200/80 shadow-sm ${opt.color} hover:scale-[1.01]`
                         }`}
-                      >
-                        <Icon className="w-6 h-6" />
-                      </div>
-                      <div className="text-left sm:text-center flex-1 sm:flex-none">
-                        <div
-                          className={`font-extrabold text-xl ${
-                            isSelected ? 'text-white' : 'text-[#0B3C5D]'
+                    >
+                      {/* Icon Container */}
+                      <div
+                        className={`w-13 h-13 sm:w-15 sm:h-15 rounded-2xl flex items-center justify-center transition-all duration-300 ${isSelected
+                          ? 'bg-white/20 text-white shadow-inner scale-110'
+                          : `${opt.iconBg} shadow-xs group-hover:scale-110`
                           }`}
+                      >
+                        <Icon className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.2]" />
+                      </div>
+
+                      {/* Text details */}
+                      <div>
+                        <div
+                          className={`font-extrabold text-lg sm:text-xl tracking-tight transition-colors ${isSelected ? 'text-white' : 'text-[#0B3C5D]'
+                            }`}
                         >
                           {opt.label}
                         </div>
                         <div
-                          className={`text-xs font-semibold ${
-                            isSelected ? 'text-white/80' : 'text-slate-400'
-                          }`}
+                          className={`text-xs font-semibold mt-0.5 transition-colors ${isSelected ? 'text-white/85' : 'text-slate-400'
+                            }`}
                         >
                           {opt.engLabel}
                         </div>
                       </div>
+
+                      {/* Mobile Selected Check Badge */}
                       {isSelected && (
-                        <div className="text-white">
-                          <CheckCircle2 className="w-6 h-6" />
+                        <div className="sm:hidden text-white bg-white/20 p-1.5 rounded-full">
+                          <CheckCircle2 className="w-5 h-5" />
                         </div>
                       )}
                     </button>
@@ -623,7 +690,7 @@ export default function SurveyPage() {
 
             {/* 3. FREE TEXT (Q9) */}
             {currentQ.type === 'text' && (
-              <div className="bg-white/90 backdrop-blur-md rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-md">
+              <div className="bg-white/95 backdrop-blur-md rounded-3xl p-5 sm:p-7 border border-slate-200/80 shadow-md">
                 <textarea
                   rows={6}
                   value={answers[currentQ.id] as string}
@@ -644,46 +711,36 @@ export default function SurveyPage() {
 
         {/* -------------------- PREVIEW STEP (Step 9) -------------------- */}
         {isPreview && (
-          <div className="animate-fade-slide-up space-y-6">
+          <div className="animate-fade-slide-up space-y-6 sm:space-y-8 max-w-4xl mx-auto w-full">
+            {submitError && (
+              <div className="bg-rose-50 border border-rose-200 text-rose-700 p-4 rounded-2xl text-sm font-semibold animate-fade-slide-up flex items-center justify-between">
+                <span>⚠️ {submitError}</span>
+                <button
+                  type="button"
+                  onClick={() => setSubmitError('')}
+                  className="text-xs text-rose-500 underline ml-2"
+                >
+                  ปิด
+                </button>
+              </div>
+            )}
             <div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-[#00A651] border border-emerald-200 text-xs font-extrabold uppercase mb-2">
                 <FileCheck2 className="w-4 h-4" />
                 สรุปและตรวจสอบข้อมูล
               </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0B3C5D]">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0B3C5D]">
                 ตรวจสอบคำตอบก่อนส่ง
               </h2>
-              <p className="text-sm text-[#0B3C5D]/70">
+              <p className="text-sm sm:text-base text-[#0B3C5D]/70 mt-1">
                 โปรดตรวจสอบความถูกต้องของข้อมูลและคำตอบของท่านก่อนกดยืนยันการส่งแบบสำรวจ
               </p>
             </div>
-
-            {/* Respondent Card */}
-            <div className="bg-white/95 rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-3.5">
-                <div className="w-12 h-12 rounded-2xl bg-slate-100 text-[#0B3C5D] flex items-center justify-center font-bold">
-                  <UserCheck className="w-6 h-6 text-[#00A651]" />
-                </div>
-                <div>
-                  <span className="text-xs font-bold text-slate-400 uppercase">ข้อมูลผู้ตอบ</span>
-                  <div className="font-extrabold text-base text-[#0B3C5D]">
-                    {validatedUser.employeeName}
-                  </div>
-                  <div className="text-xs text-slate-500 font-medium">
-                    รหัส: {validatedUser.employeeId} • บทบาท: {validatedUser.roleName}
-                  </div>
-                </div>
-              </div>
-              <div className="text-xs font-mono text-slate-400 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 truncate max-w-full">
-                UUID: {validatedUser.id}
-              </div>
-            </div>
-
             {/* Answers Summary Section */}
-            <div className="bg-white/95 rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-md space-y-5">
-              <h3 className="font-extrabold text-lg text-[#0B3C5D] border-b border-slate-100 pb-3 flex items-center justify-between">
+            <div className="bg-white/95 rounded-3xl p-5 sm:p-8 lg:p-10 border border-slate-200/80 shadow-md space-y-5 sm:space-y-6">
+              <h3 className="font-extrabold text-lg sm:text-xl text-[#0B3C5D] border-b border-slate-100 pb-3 sm:pb-4 flex items-center justify-between">
                 <span>คำตอบของคุณ (9 ข้อ)</span>
-                <span className="text-xs font-semibold text-emerald-600">กรอกครบถ้วน</span>
+                <span className="text-xs sm:text-sm font-semibold text-emerald-600">กรอกครบถ้วน</span>
               </h3>
 
               <div className="divide-y divide-slate-100">
@@ -700,7 +757,7 @@ export default function SurveyPage() {
                     else if (val === 1) badgeColor = 'bg-rose-100 text-rose-800 font-bold';
                   } else if (q.type === 'yesno') {
                     const opt = YES_NO_OPTIONS.find((o) => o.value === val);
-                    displayVal = opt ? opt.label : 'ยังไม่ได้ตอบ';
+                    displayVal = opt ? `${opt.label} (${opt.engLabel})` : 'ยังไม่ได้ตอบ';
                     if (val === 1) badgeColor = 'bg-emerald-100 text-emerald-800 font-bold';
                     else if (val === 0) badgeColor = 'bg-rose-100 text-rose-800 font-bold';
                   } else if (q.type === 'text') {
@@ -710,25 +767,25 @@ export default function SurveyPage() {
                   return (
                     <div
                       key={q.id}
-                      className="py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 group"
+                      className="py-3.5 sm:py-4.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 group"
                     >
-                      <div className="flex-1 pr-2">
+                      <div className="flex-1 pr-2 sm:pr-4">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-xs font-extrabold text-[#00A651] bg-emerald-50 px-2 py-0.5 rounded-md">
                             Q{idx + 1}
                           </span>
                           <span className="text-xs font-semibold text-slate-400">{q.category}</span>
                         </div>
-                        <p className="text-sm font-bold text-[#0B3C5D]">{q.title}</p>
+                        <p className="text-sm sm:text-base font-bold text-[#0B3C5D]">{q.title}</p>
                       </div>
 
-                      <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                      <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
                         {q.type === 'text' ? (
-                          <div className="text-sm text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-200 w-full sm:max-w-xs break-words">
+                          <div className="text-sm text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200 w-full md:max-w-sm break-words">
                             {displayVal}
                           </div>
                         ) : (
-                          <span className={`px-3 py-1 rounded-full text-xs ${badgeColor}`}>
+                          <span className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm ${badgeColor}`}>
                             {displayVal}
                           </span>
                         )}
@@ -736,7 +793,7 @@ export default function SurveyPage() {
                         <button
                           type="button"
                           onClick={() => handleJumpToStep(idx)}
-                          className="text-xs font-bold text-[#00A651] hover:underline cursor-pointer flex-shrink-0"
+                          className="text-xs sm:text-sm font-bold text-[#00A651] hover:underline cursor-pointer flex-shrink-0"
                         >
                           แก้ไข
                         </button>
@@ -752,26 +809,25 @@ export default function SurveyPage() {
 
       {/* Floating Bottom Navigation Bar */}
       <footer className="sticky bottom-0 z-40 bg-white/90 backdrop-blur-md border-t border-slate-200/80 p-4 sm:p-5">
-        <div className="max-w-3xl mx-auto flex items-center justify-between gap-4">
+        <div className="max-w-5xl lg:max-w-6xl mx-auto flex items-center justify-between gap-4">
           <button
             type="button"
             onClick={handleBack}
             disabled={currentStep === 0 || isSubmitting}
-            className="px-5 py-3 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-[#0B3C5D] font-extrabold text-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-2 shadow-xs cursor-pointer"
+            className="px-5 sm:px-7 py-3 sm:py-3.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-[#0B3C5D] font-extrabold text-sm sm:text-base transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-2 shadow-xs cursor-pointer"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">ย้อนกลับ</span>
+            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="inline">ย้อนกลับ</span>
           </button>
 
           <button
             type="button"
             onClick={handleNext}
             disabled={!isCurrentStepValid() || isSubmitting}
-            className={`flex-1 sm:flex-none sm:min-w-[220px] px-8 py-3.5 rounded-full font-extrabold text-sm sm:text-base text-white transition-all duration-300 flex items-center justify-center gap-2 shadow-lg cursor-pointer ${
-              isPreview
-                ? 'bg-gradient-to-r from-[#00A651] to-[#008f45] shadow-emerald-600/30 hover:shadow-emerald-600/40 hover:-translate-y-0.5'
-                : 'bg-[#00A651] hover:bg-[#008f45] shadow-emerald-600/25 hover:-translate-y-0.5'
-            } disabled:opacity-40 disabled:hover:translate-y-0 disabled:cursor-not-allowed`}
+            className={`flex-1 sm:flex-none sm:min-w-[240px] lg:min-w-[280px] px-8 py-3.5 sm:py-4 rounded-full font-extrabold text-sm sm:text-base lg:text-lg text-white transition-all duration-300 flex items-center justify-center gap-2.5 shadow-lg cursor-pointer ${isPreview
+              ? 'bg-gradient-to-r from-[#00A651] to-[#008f45] shadow-emerald-600/30 hover:shadow-emerald-600/40 hover:-translate-y-0.5'
+              : 'bg-[#00A651] hover:bg-[#008f45] shadow-emerald-600/25 hover:-translate-y-0.5'
+              } disabled:opacity-40 disabled:hover:translate-y-0 disabled:cursor-not-allowed`}
           >
             {isSubmitting ? (
               <>
