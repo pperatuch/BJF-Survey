@@ -70,7 +70,7 @@ class AuthController extends Controller
             ], 403);
         }
 
-        // 3. Find admin record in the 'admins' table
+        // 3. Find admin record in the 'BJFSur_admin' table
         $admin = Admin::where('employee_id', $employeeId)->first();
 
         if (! $admin) {
