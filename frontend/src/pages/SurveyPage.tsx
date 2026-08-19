@@ -3,7 +3,6 @@ import {
   ArrowLeft,
   ArrowRight,
   CheckCircle2,
-  Sparkles,
   ThumbsUp,
   ThumbsDown,
   Frown,
@@ -18,7 +17,6 @@ import {
 export interface QuestionDef {
   id: string;
   type: 'frequency' | 'yesno' | 'text';
-  category: string;
   title: string;
   subtitle?: string;
 }
@@ -28,65 +26,56 @@ export const QUESTIONS: QuestionDef[] = [
   {
     id: 'q1',
     type: 'frequency',
-    category: 'การสื่อสารและข้อเท็จจริง',
     title: 'เมื่อเกิดปัญหาในการทำงาน พนักงานสามารถให้ข้อมูลข้อเท็จจริงได้อย่างเปิดเผย',
-    subtitle: 'เลือกความถี่ที่ตรงกับสภาพความเป็นจริงในการทำงานของคุณมากที่สุด',
+    subtitle: 'เลือกข้อที่ตรงกับสภาพความเป็นจริงในการทำงานของคุณมากที่สุด',
   },
   {
     id: 'q2',
     type: 'frequency',
-    category: 'การร่วมมือระหว่างหน่วยงาน',
     title: 'หน่วยงานต่างๆ ให้ความร่วมมือในการให้ข้อมูลครบถ้วนและถูกต้อง เมื่อมีการตรวจสอบหรือสอบถามข้อเท็จจริง',
-    subtitle: 'การประสานงานและการส่งต่อข้อมูลเมื่อมีการขอตรวจสอบ',
+    subtitle: 'เลือกข้อที่ตรงกับสภาพความเป็นจริงในการทำงานของคุณมากที่สุด',
   },
   {
     id: 'q3',
     type: 'frequency',
-    category: 'บทบาทหัวหน้างาน',
     title: 'เมื่อเกิดข้อผิดพลาด หัวหน้างานมุ่งเน้นการแก้ปัญหา มากกว่าการหาคนผิด',
-    subtitle: 'ทัศนคติและแนวทางการจัดการปัญหาของผู้นำทีม',
+    subtitle: 'เลือกข้อที่ตรงกับสภาพความเป็นจริงในการทำงานของคุณมากที่สุด',
   },
   {
     id: 'q4',
     type: 'frequency',
-    category: 'การแก้ไขปัญหาที่ยั่งยืน',
     title: 'ข้อผิดพลาดที่เกิดขึ้นได้รับการแก้ไขที่สาเหตุที่แท้จริง',
-    subtitle: 'การป้องกันไม่ให้ปัญหาเดิมเกิดขึ้นซ้ำอีกในอนาคต',
+    subtitle: 'เลือกข้อที่ตรงกับสภาพความเป็นจริงในการทำงานของคุณมากที่สุด',
   },
   {
     id: 'q5',
     type: 'frequency',
-    category: 'ความกล้าแสดงออก',
     title: 'หากฉันพบความเสี่ยงหรือการปฏิบัติที่ไม่ถูกต้อง ฉันกล้าที่จะรายงาน',
-    subtitle: 'ความรู้สึกปลอดภัยในการรายงานสิ่งที่ไม่ถูกต้องในองค์กร',
+    subtitle: 'เลือกข้อที่ตรงกับสภาพความเป็นจริงในการทำงานของคุณมากที่สุด',
   },
   // Q6 - Q8: Yes/No
   {
     id: 'q6',
     type: 'yesno',
-    category: 'ความปลอดภัยและความมั่นใจ',
     title: 'ฉันมั่นใจว่าการให้ข้อมูลตามข้อเท็จจริงจะไม่ส่งผลกระทบในทางลบต่อตัวฉัน',
-    subtitle: 'ความมั่นใจในนโยบายการปกป้องผู้ให้ข้อมูล',
+    subtitle: 'เลือกข้อที่ตรงกับสภาพความเป็นจริงในการทำงานของคุณมากที่สุด',
   },
   {
     id: 'q7',
     type: 'yesno',
-    category: 'การสนับสนุนจากผู้นำ',
     title: 'หัวหน้างานของฉันสนับสนุนให้พนักงานรายงานปัญหาตามความเป็นจริง',
-    subtitle: 'การส่งเสริมและเปิดรับฟังความคิดเห็นจากหัวหน้างาน',
+    subtitle: 'เลือกข้อที่ตรงกับสภาพความเป็นจริงในการทำงานของคุณมากที่สุด',
   },
   {
     id: 'q8',
     type: 'yesno',
-    category: 'ความเชื่อมั่นในผู้นำ',
     title: 'ฉันมีความเชื่อมั่นในตัวหัวหน้างานโดยตรง',
-    subtitle: 'ระดับความไว้วางใจในการปฏิบัติงานและการเป็นผู้นำ',
+    subtitle: 'เลือกข้อที่ตรงกับสภาพความเป็นจริงในการทำงานของคุณมากที่สุด',
   },
   // Q9: Free text
   {
     id: 'q9',
     type: 'text',
-    category: 'ข้อเสนอแนะเพื่อการพัฒนา',
     title: 'ท่านคิดว่า องค์กรควรปรับปรุงเรื่องใดมากที่สุด เพื่อสร้างวัฒนธรรมการทำงานที่โปร่งใสและเปิดเผยข้อมูล',
     subtitle: 'ความคิดเห็นและข้อเสนอแนะเชิงสร้างสรรค์ของคุณมีคุณค่าอย่างยิ่ง',
   },
@@ -558,13 +547,9 @@ export default function SurveyPage() {
         {/* -------------------- QUESTIONS STEP -------------------- */}
         {!isPreview && currentQ && (
           <div key={currentQ.id} className="animate-fade-slide-up w-full">
-            {/* Category Tag & Badge */}
+            {/* Question Badge */}
             <div className="flex items-center gap-2 mb-3">
-              <span className="px-3 py-1 rounded-full bg-emerald-50 text-[#00A651] border border-emerald-200/70 text-xs font-extrabold uppercase tracking-wide flex items-center gap-1.5 shadow-2xs">
-                <Sparkles className="w-3.5 h-3.5" />
-                {currentQ.category}
-              </span>
-              <span className="text-xs font-bold text-slate-400">
+              <span className="px-3 py-1 rounded-full bg-emerald-50 text-[#00A651] border border-emerald-200/70 text-xs font-extrabold flex items-center gap-1.5 shadow-2xs">
                 คำถาม {currentStep + 1} จาก {QUESTIONS.length}
               </span>
             </div>
@@ -774,7 +759,6 @@ export default function SurveyPage() {
                           <span className="text-xs font-extrabold text-[#00A651] bg-emerald-50 px-2 py-0.5 rounded-md">
                             Q{idx + 1}
                           </span>
-                          <span className="text-xs font-semibold text-slate-400">{q.category}</span>
                         </div>
                         <p className="text-sm sm:text-base font-bold text-[#0B3C5D]">{q.title}</p>
                       </div>
