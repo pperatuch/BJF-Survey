@@ -207,7 +207,7 @@ export default function SurveyPage() {
     if (currentStep < 9) {
       setCurrentStep((prev) => prev + 1);
     } else if (currentStep === 9) {
-      // Submit to Backend API
+      // Submit to Back API
       if (!validatedCode) {
         setSubmitError('ไม่พบรหัสผู้ตอบ กรุณาเข้าสู่ระบบใหม่อีกครั้ง');
         return;

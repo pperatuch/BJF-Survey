@@ -50,14 +50,42 @@ class SurveyResponseController extends Controller
         if ($endDate = $request->input('end_date')) {
             $query->whereDate('submitted_at', '<=', $endDate);
         }
-
         $perPage = (int) $request->input('per_page', 20);
+
         $perPage = min(max($perPage, 5), 500);
 
-        // Sort: if viewing responded, order by submitted_at desc, otherwise emp_no asc
+        // Sort: dynamic column sorting
+        $sortField = $request->input('sort_field');
+        $sortDir = strtolower($request->input('sort_dir', 'asc')) === 'desc' ? 'desc' : 'asc';
 
-        $orderCol = ($status === 'responded') ? 'submitted_at' : 'emp_no';
-        $orderDir = ($status === 'responded') ? 'desc' : 'asc';
+        $allowedSorts = [
+            'emp_no' => 'emp_no',
+            'name' => 'emp_name_th',
+            'emp_initial' => 'emp_initial',
+            'position' => 'position_title_en',
+            'section' => 'section_name',
+            'access_code' => 'access_code',
+            'status' => 'submitted_at',
+            'submitted_at' => 'submitted_at',
+            'q1' => 'q1',
+            'q2' => 'q2',
+            'q3' => 'q3',
+            'q4' => 'q4',
+            'q5' => 'q5',
+            'q6' => 'q6',
+            'q7' => 'q7',
+            'q8' => 'q8',
+            'q9' => 'q9',
+        ];
+
+        if ($sortField && isset($allowedSorts[$sortField])) {
+            $orderCol = $allowedSorts[$sortField];
+            $orderDir = $sortDir;
+        } else {
+            $orderCol = ($status === 'responded') ? 'submitted_at' : 'emp_no';
+            $orderDir = ($status === 'responded') ? 'desc' : 'asc';
+        }
+
 
 
         // Select required columns only
@@ -170,12 +198,25 @@ class SurveyResponseController extends Controller
         $output .= '  <Worksheet ss:Name="Survey Responses">' . "\n";
         $output .= '    <Table>' . "\n";
 
-        // Header
+        // Header for Survey Responses Export
         $headers = [
-            'รหัสพนักงาน', 'คำนำหน้า', 'ชื่อ-นามสกุล', 'ชื่อเล่น', 'ตำแหน่ง', 'แผนก',
-            'Access Code', 'สถานะการตอบ', 'วันเวลาที่ตอบ',
-            'Q1 (1-3)', 'Q2 (1-3)', 'Q3 (1-3)', 'Q4 (1-3)', 'Q5 (1-3)',
-            'Q6 (Y/N)', 'Q7 (Y/N)', 'Q8 (Y/N)', 'Q9 (คำถามปลายเปิด)'
+            'รหัสพนักงาน',
+            'ชื่อ-นามสกุล (ไทย)',
+            'ชื่อเล่น',
+            'ตำแหน่ง',
+            'แผนก',
+            'Access Code',
+            'สถานะการตอบ',
+            'วันเวลาที่ตอบ',
+            'Q1: เมื่อเกิดปัญหาในการทำงาน พนักงานสามารถให้ข้อมูลข้อเท็จจริงได้อย่างเปิดเผย',
+            'Q2: หน่วยงานต่างๆ ให้ความร่วมมือในการให้ข้อมูลครบถ้วนและถูกต้อง เมื่อมีการตรวจสอบหรือสอบถามข้อเท็จจริง',
+            'Q3: เมื่อเกิดข้อผิดพลาด หัวหน้างานมุ่งเน้นการแก้ปัญหา มากกว่าการหาคนผิด',
+            'Q4: ข้อผิดพลาดที่เกิดขึ้นได้รับการแก้ไขที่สาเหตุที่แท้จริง',
+            'Q5: หากฉันพบความเสี่ยงหรือการปฏิบัติที่ไม่ถูกต้อง ฉันกล้าที่จะรายงาน',
+            'Q6: ฉันมั่นใจว่าการให้ข้อมูลตามข้อเท็จจริงจะไม่ส่งผลกระทบในทางลบต่อตัวฉัน',
+            'Q7: หัวหน้างานของฉันสนับสนุนให้พนักงานรายงานปัญหาตามความเป็นจริง',
+            'Q8: ฉันมีความเชื่อมั่นในตัวหัวหน้างานโดยตรง',
+            'Q9: ข้อเสนอแนะ (ท่านคิดว่า องค์กรควรปรับปรุงเรื่องใดมากที่สุด เพื่อสร้างวัฒนธรรมการทำงานที่โปร่งใสและเปิดเผยข้อมูล)',
         ];
 
         $output .= '      <Row ss:StyleID="Header">' . "\n";
@@ -192,7 +233,6 @@ class SurveyResponseController extends Controller
 
             $output .= '      <Row>' . "\n";
             $output .= '        <Cell ss:StyleID="Center"><Data ss:Type="String">' . htmlspecialchars($emp->emp_no ?? '', ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
-            $output .= '        <Cell><Data ss:Type="String">' . htmlspecialchars($emp->emp_title_th ?? '', ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
             $output .= '        <Cell><Data ss:Type="String">' . htmlspecialchars($fullName ?: ($emp->emp_name_en ?? ''), ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
             $output .= '        <Cell ss:StyleID="Center"><Data ss:Type="String">' . htmlspecialchars($emp->emp_initial ?? '', ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
             $output .= '        <Cell><Data ss:Type="String">' . htmlspecialchars($emp->position_title_en ?? '', ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
@@ -255,7 +295,6 @@ class SurveyResponseController extends Controller
         $headers = [
             'ลำดับ',
             'รหัสพนักงาน (Emp No)',
-            'คำนำหน้า',
             'ชื่อ-นามสกุล (ไทย)',
             'ชื่อเล่น',
             'ตำแหน่ง',
@@ -276,7 +315,6 @@ class SurveyResponseController extends Controller
             $output .= '      <Row>' . "\n";
             $output .= '        <Cell ss:StyleID="Center"><Data ss:Type="Number">' . ($idx + 1) . '</Data></Cell>' . "\n";
             $output .= '        <Cell ss:StyleID="Center"><Data ss:Type="String">' . htmlspecialchars($emp->emp_no ?? '', ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
-            $output .= '        <Cell><Data ss:Type="String">' . htmlspecialchars($emp->emp_title_th ?? '', ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
             $output .= '        <Cell><Data ss:Type="String">' . htmlspecialchars($fullName ?: ($emp->emp_name_en ?? ''), ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
             $output .= '        <Cell ss:StyleID="Center"><Data ss:Type="String">' . htmlspecialchars($emp->emp_initial ?? '-', ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
             $output .= '        <Cell><Data ss:Type="String">' . htmlspecialchars($emp->position_title_en ?? '-', ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
@@ -288,6 +326,7 @@ class SurveyResponseController extends Controller
         $output .= '    </Table>' . "\n";
         $output .= '  </Worksheet>' . "\n";
         $output .= '</Workbook>';
+
 
         return response($output, 200, [
             'Content-Type' => 'application/vnd.ms-excel; charset=UTF-8',

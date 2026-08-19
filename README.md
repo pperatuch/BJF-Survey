@@ -11,7 +11,7 @@ Project structure & Tech Stack based on **React + Laravel**:
 - **Server Fetching**: TanStack Query (React Query)
 - **Routing & Utilities**: React Router DOM v7, Axios, Lucide Icons, clsx, tailwind-merge
 
-### Backend (`/backend`)
+### Back (`/back`)
 - **Core**: Laravel 12 (PHP 8.2+)
 - **API Authentication**: Laravel Sanctum
 
@@ -26,11 +26,11 @@ npm install
 npm run dev
 ```
 
-### Backend
+### Back
 ```bash
-cd backend
+cd back
 composer install
 cp .env.example .env
 php artisan key:generate
 php artisan serve
-```
+```
