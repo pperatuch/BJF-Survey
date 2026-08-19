@@ -6,9 +6,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class Admin extends Authenticatable
 {
-    protected $table = 'admins';
+    protected $table = 'BJFSur_admin';
 
     public $timestamps = false;
+
 
     // Disable default passwords & emails casts since AD credentials are not stored locally
     protected $fillable = [
