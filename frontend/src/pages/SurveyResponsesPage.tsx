@@ -240,8 +240,12 @@ export default function SurveyResponsesPage() {
         'รหัสพนักงาน',
         'ชื่อ-นามสกุล (ไทย)',
         'ชื่อเล่น',
+        'Email',
         'ตำแหน่ง',
-        'แผนก',
+        'Division Name',
+        'Department Name',
+        'Section Name',
+        'BB Sub',
         'Access Code',
         'สถานะการตอบ',
         'วันเวลาที่ตอบ',
@@ -265,8 +269,12 @@ export default function SurveyResponsesPage() {
           emp.emp_no || '',
           fullName,
           emp.emp_initial || '',
+          emp.email || '-',
           emp.position_title_en || '',
-          emp.section_name || '',
+          emp.division_name || '-',
+          emp.department_name || '-',
+          emp.section_name || '-',
+          emp.bb_sub || '-',
           emp.access_code || '',
           emp.submitted_at ? 'ตอบแล้ว' : 'ยังไม่ตอบ',
           emp.submitted_at ? formatDateTime(emp.submitted_at) : '-',
@@ -306,7 +314,7 @@ export default function SurveyResponsesPage() {
       };
 
       // Apply cell styles across entire worksheet
-      const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:Q1');
+      const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:V1');
       for (let R = range.s.r; R <= range.e.r; ++R) {
         for (let C = range.s.c; C <= range.e.c; ++C) {
           const cellRef = XLSX.utils.encode_cell({ r: R, c: C });
@@ -318,7 +326,8 @@ export default function SurveyResponsesPage() {
             // Row data styles
             const isEven = R % 2 === 0;
             const bgColor = isEven ? 'F8FAFC' : 'FFFFFF';
-            const isCenterCol = [0, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].includes(C);
+            // Center aligned columns: emp_no (0), initial (2), bb_sub (8), access_code (9), status (10), submitted_at (11), q1-q8 (12 to 19)
+            const isCenterCol = [0, 2, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19].includes(C);
 
             worksheet[cellRef].s = {
               font: { name: 'Sarabun', sz: 10, color: { rgb: '1E293B' } },
@@ -326,19 +335,19 @@ export default function SurveyResponsesPage() {
               alignment: {
                 vertical: 'center',
                 horizontal: isCenterCol ? 'center' : 'left',
-                wrapText: C === 16, // wrap for Q9 open-ended suggestions
+                wrapText: C === 20, // wrap for Q9 open-ended suggestions
               },
               border: thinBorder,
             };
 
-            // Custom styling for Access Code column (amber accent)
-            if (C === 5) {
+            // Custom styling for Access Code column (amber accent) - Now at index 9
+            if (C === 9) {
               worksheet[cellRef].s.font = { name: 'Consolas', sz: 10, bold: true, color: { rgb: 'B45309' } };
               worksheet[cellRef].s.fill = { fgColor: { rgb: 'FEF3C7' } };
             }
 
-            // Custom styling for status column
-            if (C === 6) {
+            // Custom styling for status column - Now at index 10
+            if (C === 10) {
               const val = worksheet[cellRef].v;
               if (val === 'ตอบแล้ว') {
                 worksheet[cellRef].s.font = { name: 'Sarabun', sz: 10, bold: true, color: { rgb: '15803D' } };
@@ -356,8 +365,12 @@ export default function SurveyResponsesPage() {
         { wch: 14 }, // รหัสพนักงาน
         { wch: 26 }, // ชื่อ-นามสกุล
         { wch: 10 }, // ชื่อเล่น
+        { wch: 24 }, // Email
         { wch: 25 }, // ตำแหน่ง
-        { wch: 18 }, // แผนก
+        { wch: 18 }, // Division
+        { wch: 18 }, // Department
+        { wch: 18 }, // Section
+        { wch: 10 }, // BB Sub
         { wch: 15 }, // Access Code
         { wch: 14 }, // สถานะ
         { wch: 20 }, // วันเวลาที่ตอบ
