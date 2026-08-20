@@ -148,13 +148,21 @@ export default function SurveyPage() {
   // Form Answers
   const [answers, setAnswers] = useState<Record<string, number | string>>({
     q1: '',
+    q1_comment: '',
     q2: '',
+    q2_comment: '',
     q3: '',
+    q3_comment: '',
     q4: '',
+    q4_comment: '',
     q5: '',
+    q5_comment: '',
     q6: '',
+    q6_comment: '',
     q7: '',
+    q7_comment: '',
     q8: '',
+    q8_comment: '',
     q9: '',
   });
 
@@ -209,13 +217,21 @@ export default function SurveyPage() {
         const payload = {
           code: validatedCode,
           q1: Number(answers.q1),
+          q1_comment: typeof answers.q1_comment === 'string' && answers.q1_comment.trim() ? answers.q1_comment.trim() : null,
           q2: Number(answers.q2),
+          q2_comment: typeof answers.q2_comment === 'string' && answers.q2_comment.trim() ? answers.q2_comment.trim() : null,
           q3: Number(answers.q3),
+          q3_comment: typeof answers.q3_comment === 'string' && answers.q3_comment.trim() ? answers.q3_comment.trim() : null,
           q4: Number(answers.q4),
+          q4_comment: typeof answers.q4_comment === 'string' && answers.q4_comment.trim() ? answers.q4_comment.trim() : null,
           q5: Number(answers.q5),
+          q5_comment: typeof answers.q5_comment === 'string' && answers.q5_comment.trim() ? answers.q5_comment.trim() : null,
           q6: answers.q6 === 1 || answers.q6 === '1' || answers.q6 === 'ใช่' ? 'ใช่' : 'ไม่ใช่',
+          q6_comment: typeof answers.q6_comment === 'string' && answers.q6_comment.trim() ? answers.q6_comment.trim() : null,
           q7: answers.q7 === 1 || answers.q7 === '1' || answers.q7 === 'ใช่' ? 'ใช่' : 'ไม่ใช่',
+          q7_comment: typeof answers.q7_comment === 'string' && answers.q7_comment.trim() ? answers.q7_comment.trim() : null,
           q8: answers.q8 === 1 || answers.q8 === '1' || answers.q8 === 'ใช่' ? 'ใช่' : 'ไม่ใช่',
+          q8_comment: typeof answers.q8_comment === 'string' && answers.q8_comment.trim() ? answers.q8_comment.trim() : null,
           q9: typeof answers.q9 === 'string' && answers.q9.trim() ? answers.q9.trim() : null,
         };
 
@@ -268,13 +284,21 @@ export default function SurveyPage() {
     setCurrentStep(0);
     setAnswers({
       q1: '',
+      q1_comment: '',
       q2: '',
+      q2_comment: '',
       q3: '',
+      q3_comment: '',
       q4: '',
+      q4_comment: '',
       q5: '',
+      q5_comment: '',
       q6: '',
+      q6_comment: '',
       q7: '',
+      q7_comment: '',
       q8: '',
+      q8_comment: '',
       q9: '',
     });
   };
@@ -567,110 +591,154 @@ export default function SurveyPage() {
             {/* Choices rendering */}
             {/* 1. FREQUENCY CHOICES (Q1 - Q5: 3 Choices) */}
             {currentQ.type === 'frequency' && (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4 lg:gap-5 w-full">
-                {FREQUENCY_OPTIONS.map((opt) => {
-                  const isSelected = answers[currentQ.id] === opt.value;
-                  const Icon = opt.icon;
-                  return (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => handleSelectOption(currentQ.id, opt.value)}
-                      className={`group relative p-5 sm:p-6 lg:p-7 rounded-3xl border-2 text-left sm:text-center transition-all duration-300 cursor-pointer flex sm:flex-col items-center justify-between sm:justify-center gap-3.5 ${isSelected
-                        ? `${opt.selectedBg} scale-[1.01] sm:scale-103`
-                        : `bg-white/90 border-slate-200/80 shadow-sm ${opt.color} hover:scale-[1.01]`
-                        }`}
-                    >
-                      {/* Icon Container */}
-                      <div
-                        className={`w-13 h-13 sm:w-15 sm:h-15 rounded-2xl flex items-center justify-center transition-all duration-300 ${isSelected
-                          ? 'bg-white/20 text-white shadow-inner scale-110'
-                          : `${opt.iconBg} shadow-xs group-hover:scale-110`
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4 lg:gap-5 w-full">
+                  {FREQUENCY_OPTIONS.map((opt) => {
+                    const isSelected = answers[currentQ.id] === opt.value;
+                    const Icon = opt.icon;
+                    return (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => handleSelectOption(currentQ.id, opt.value)}
+                        className={`group relative p-5 sm:p-6 lg:p-7 rounded-3xl border-2 text-left sm:text-center transition-all duration-300 cursor-pointer flex items-center justify-between sm:justify-center gap-3.5 ${isSelected
+                          ? `${opt.selectedBg} scale-[1.01] sm:scale-103`
+                          : `bg-white/90 border-slate-200/80 shadow-sm ${opt.color} hover:scale-[1.01]`
                           }`}
                       >
-                        <Icon className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.2]" />
-                      </div>
+                        {/* Wrapper for Icon and Text */}
+                        <div className="flex sm:flex-col items-center gap-3.5 sm:gap-4 flex-1 sm:flex-none">
+                          {/* Icon Container */}
+                          <div
+                            className={`w-13 h-13 sm:w-15 sm:h-15 rounded-2xl flex items-center justify-center transition-all duration-300 flex-shrink-0 ${isSelected
+                              ? 'bg-white/20 text-white shadow-inner scale-110'
+                              : `${opt.iconBg} shadow-xs group-hover:scale-110`
+                              }`}
+                          >
+                            <Icon className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.2]" />
+                          </div>
 
-                      {/* Text details */}
-                      <div>
-                        <div
-                          className={`font-extrabold text-lg sm:text-xl tracking-tight transition-colors ${isSelected ? 'text-white' : 'text-[#0B3C5D]'
-                            }`}
-                        >
-                          {opt.label}
+                          {/* Text details */}
+                          <div>
+                            <div
+                              className={`font-extrabold text-lg sm:text-xl tracking-tight transition-colors ${isSelected ? 'text-white' : 'text-[#0B3C5D]'
+                                }`}
+                            >
+                              {opt.label}
+                            </div>
+                            <div
+                              className={`text-xs font-semibold mt-0.5 transition-colors ${isSelected ? 'text-white/85' : 'text-slate-400'
+                                }`}
+                            >
+                              {opt.engLabel}
+                            </div>
+                          </div>
                         </div>
-                        <div
-                          className={`text-xs font-semibold mt-0.5 transition-colors ${isSelected ? 'text-white/85' : 'text-slate-400'
-                            }`}
-                        >
-                          {opt.engLabel}
-                        </div>
-                      </div>
 
-                      {/* Mobile Selected Check Badge */}
-                      {isSelected && (
-                        <div className="sm:hidden text-white bg-white/20 p-1.5 rounded-full">
-                          <CheckCircle2 className="w-5 h-5" />
-                        </div>
-                      )}
-                    </button>
+                        {/* Mobile Selected Check Badge */}
+                        {isSelected && (
+                          <div className="sm:hidden text-white bg-white/20 p-1.5 rounded-full flex-shrink-0">
+                            <CheckCircle2 className="w-5 h-5" />
+                          </div>
+                        )}
+                      </button>
                   );
                 })}
               </div>
+              
+              {/* Optional Comment Box for Frequency */}
+              <div className="mt-5 sm:mt-6 bg-white/60 p-4 sm:p-5 rounded-2xl border border-slate-200/60 shadow-sm">
+                  <label className="block text-sm font-bold text-[#0B3C5D] mb-2 flex items-center gap-1.5">
+                    ข้อเสนอแนะเพิ่มเติม
+                    <span className="text-xs font-medium text-slate-400 font-normal">(ไม่บังคับ)</span>
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={(answers[`${currentQ.id}_comment`] as string) || ''}
+                    onChange={(e) =>
+                      setAnswers((prev) => ({ ...prev, [`${currentQ.id}_comment`]: e.target.value }))
+                    }
+                    placeholder="พิมพ์ข้อเสนอแนะหรือเหตุผลเพิ่มเติมที่นี่..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 sm:p-4 text-sm text-[#0B3C5D] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#00A651]/30 focus:border-[#00A651] focus:bg-white transition-all resize-none shadow-inner"
+                  />
+                </div>
+            </>
             )}
 
             {/* 2. YES/NO CHOICES (Q6 - Q8) */}
             {currentQ.type === 'yesno' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-5 max-w-2xl mx-auto w-full">
-                {YES_NO_OPTIONS.map((opt) => {
-                  const isSelected = answers[currentQ.id] === opt.value;
-                  const Icon = opt.icon;
-                  return (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => handleSelectOption(currentQ.id, opt.value)}
-                      className={`group relative p-5 sm:p-6 lg:p-7 rounded-3xl border-2 text-left sm:text-center transition-all duration-300 cursor-pointer flex sm:flex-col items-center justify-between sm:justify-center gap-3.5 ${isSelected
-                        ? `${opt.selectedBg} scale-[1.01] sm:scale-103`
-                        : `bg-white/90 border-slate-200/80 shadow-sm ${opt.color} hover:scale-[1.01]`
-                        }`}
-                    >
-                      {/* Icon Container */}
-                      <div
-                        className={`w-13 h-13 sm:w-15 sm:h-15 rounded-2xl flex items-center justify-center transition-all duration-300 ${isSelected
-                          ? 'bg-white/20 text-white shadow-inner scale-110'
-                          : `${opt.iconBg} shadow-xs group-hover:scale-110`
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-5 max-w-2xl mx-auto w-full">
+                  {YES_NO_OPTIONS.map((opt) => {
+                    const isSelected = answers[currentQ.id] === opt.value;
+                    const Icon = opt.icon;
+                    return (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => handleSelectOption(currentQ.id, opt.value)}
+                        className={`group relative p-5 sm:p-6 lg:p-7 rounded-3xl border-2 text-left sm:text-center transition-all duration-300 cursor-pointer flex items-center justify-between sm:justify-center gap-3.5 ${isSelected
+                          ? `${opt.selectedBg} scale-[1.01] sm:scale-103`
+                          : `bg-white/90 border-slate-200/80 shadow-sm ${opt.color} hover:scale-[1.01]`
                           }`}
                       >
-                        <Icon className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.2]" />
-                      </div>
+                        {/* Wrapper for Icon and Text */}
+                        <div className="flex sm:flex-col items-center gap-3.5 sm:gap-4 flex-1 sm:flex-none">
+                          {/* Icon Container */}
+                          <div
+                            className={`w-13 h-13 sm:w-15 sm:h-15 rounded-2xl flex items-center justify-center transition-all duration-300 flex-shrink-0 ${isSelected
+                              ? 'bg-white/20 text-white shadow-inner scale-110'
+                              : `${opt.iconBg} shadow-xs group-hover:scale-110`
+                              }`}
+                          >
+                            <Icon className="w-7 h-7 sm:w-8 sm:h-8 stroke-[2.2]" />
+                          </div>
 
-                      {/* Text details */}
-                      <div>
-                        <div
-                          className={`font-extrabold text-lg sm:text-xl tracking-tight transition-colors ${isSelected ? 'text-white' : 'text-[#0B3C5D]'
-                            }`}
-                        >
-                          {opt.label}
+                          {/* Text details */}
+                          <div>
+                            <div
+                              className={`font-extrabold text-lg sm:text-xl tracking-tight transition-colors ${isSelected ? 'text-white' : 'text-[#0B3C5D]'
+                                }`}
+                            >
+                              {opt.label}
+                            </div>
+                            <div
+                              className={`text-xs font-semibold mt-0.5 transition-colors ${isSelected ? 'text-white/85' : 'text-slate-400'
+                                }`}
+                            >
+                              {opt.engLabel}
+                            </div>
+                          </div>
                         </div>
-                        <div
-                          className={`text-xs font-semibold mt-0.5 transition-colors ${isSelected ? 'text-white/85' : 'text-slate-400'
-                            }`}
-                        >
-                          {opt.engLabel}
-                        </div>
-                      </div>
 
-                      {/* Mobile Selected Check Badge */}
-                      {isSelected && (
-                        <div className="sm:hidden text-white bg-white/20 p-1.5 rounded-full">
-                          <CheckCircle2 className="w-5 h-5" />
-                        </div>
-                      )}
-                    </button>
+                        {/* Mobile Selected Check Badge */}
+                        {isSelected && (
+                          <div className="sm:hidden text-white bg-white/20 p-1.5 rounded-full flex-shrink-0">
+                            <CheckCircle2 className="w-5 h-5" />
+                          </div>
+                        )}
+                      </button>
                   );
                 })}
               </div>
+              
+              {/* Optional Comment Box for Yes/No */}
+              <div className="mt-5 sm:mt-6 bg-white/60 p-4 sm:p-5 rounded-2xl border border-slate-200/60 shadow-sm max-w-2xl mx-auto w-full">
+                  <label className="block text-sm font-bold text-[#0B3C5D] mb-2 flex items-center gap-1.5">
+                    ข้อเสนอแนะเพิ่มเติม
+                    <span className="text-xs font-medium text-slate-400 font-normal">(ไม่บังคับ)</span>
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={(answers[`${currentQ.id}_comment`] as string) || ''}
+                    onChange={(e) =>
+                      setAnswers((prev) => ({ ...prev, [`${currentQ.id}_comment`]: e.target.value }))
+                    }
+                    placeholder="พิมพ์ข้อเสนอแนะหรือเหตุผลเพิ่มเติมที่นี่..."
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 sm:p-4 text-sm text-[#0B3C5D] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#00A651]/30 focus:border-[#00A651] focus:bg-white transition-all resize-none shadow-inner"
+                  />
+                </div>
+            </>
             )}
 
             {/* 3. FREE TEXT (Q9) */}
@@ -750,38 +818,48 @@ export default function SurveyPage() {
                   }
 
                   return (
-                    <div
-                      key={q.id}
-                      className="py-3.5 sm:py-4.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 group"
-                    >
-                      <div className="flex-1 pr-2 sm:pr-4">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-xs font-extrabold text-[#00A651] bg-emerald-50 px-2 py-0.5 rounded-md">
-                            Q{idx + 1}
-                          </span>
-                        </div>
-                        <p className="text-sm sm:text-base font-bold text-[#0B3C5D]">{q.title}</p>
-                      </div>
-
-                      <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
-                        {q.type === 'text' ? (
-                          <div className="text-sm text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200 w-full md:max-w-sm break-words">
-                            {displayVal}
+                    <div key={q.id} className="py-3.5 sm:py-4.5 group flex flex-col gap-3">
+                      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+                        <div className="flex-1 pr-2 sm:pr-4">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xs font-extrabold text-[#00A651] bg-emerald-50 px-2 py-0.5 rounded-md">
+                              Q{idx + 1}
+                            </span>
                           </div>
-                        ) : (
-                          <span className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm ${badgeColor}`}>
-                            {displayVal}
-                          </span>
-                        )}
+                          <p className="text-sm sm:text-base font-bold text-[#0B3C5D]">{q.title}</p>
+                        </div>
 
-                        <button
-                          type="button"
-                          onClick={() => handleJumpToStep(idx)}
-                          className="text-xs sm:text-sm font-bold text-[#00A651] hover:underline cursor-pointer flex-shrink-0"
-                        >
-                          แก้ไข
-                        </button>
+                        <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
+                          {q.type !== 'text' && (
+                            <span className={`px-3.5 py-1.5 rounded-full text-xs sm:text-sm ${badgeColor}`}>
+                              {displayVal}
+                            </span>
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={() => handleJumpToStep(idx)}
+                            className="text-xs sm:text-sm font-bold text-[#00A651] hover:underline cursor-pointer flex-shrink-0"
+                          >
+                            แก้ไข
+                          </button>
+                        </div>
                       </div>
+                      {/* Show comment in preview if exists */}
+                      {q.type !== 'text' && answers[`${q.id}_comment`] && (
+                        <div className="w-full text-sm text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-start gap-2">
+                          <span className="text-slate-400 flex-shrink-0">💬</span>
+                          <span className="flex-1 whitespace-pre-wrap break-words min-w-0" style={{ wordBreak: 'break-word' }}>{answers[`${q.id}_comment`]}</span>
+                        </div>
+                      )}
+
+                      {/* Show text answer in full width for text questions */}
+                      {q.type === 'text' && (
+                        <div className="w-full text-sm text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-start gap-2">
+                          <span className="text-slate-400 flex-shrink-0">💬</span>
+                          <span className="flex-1 whitespace-pre-wrap break-words min-w-0" style={{ wordBreak: 'break-word' }}>{displayVal}</span>
+                        </div>
+                      )}
                     </div>
                   );
                 })}

@@ -112,13 +112,21 @@ class SurveyResponseController extends Controller
             'bb_sub',
             'access_code',
             'q1',
+            'q1_comment',
             'q2',
+            'q2_comment',
             'q3',
+            'q3_comment',
             'q4',
+            'q4_comment',
             'q5',
+            'q5_comment',
             'q6',
+            'q6_comment',
             'q7',
+            'q7_comment',
             'q8',
+            'q8_comment',
             'q9',
             'submitted_at',
         ])
@@ -224,13 +232,21 @@ class SurveyResponseController extends Controller
             'สถานะการตอบ',
             'วันเวลาที่ตอบ',
             'Q1: เมื่อเกิดปัญหาในการทำงาน พนักงานสามารถให้ข้อมูลข้อเท็จจริงได้อย่างเปิดเผย',
+            'Q1 Comment',
             'Q2: หน่วยงานต่างๆ ให้ความร่วมมือในการให้ข้อมูลครบถ้วนและถูกต้อง เมื่อมีการตรวจสอบหรือสอบถามข้อเท็จจริง',
+            'Q2 Comment',
             'Q3: เมื่อเกิดข้อผิดพลาด หัวหน้างานมุ่งเน้นการแก้ปัญหา มากกว่าการหาคนผิด',
+            'Q3 Comment',
             'Q4: ข้อผิดพลาดที่เกิดขึ้นได้รับการแก้ไขที่สาเหตุที่แท้จริง',
+            'Q4 Comment',
             'Q5: หากฉันพบความเสี่ยงหรือการปฏิบัติที่ไม่ถูกต้อง ฉันกล้าที่จะรายงาน',
+            'Q5 Comment',
             'Q6: ฉันมั่นใจว่าการให้ข้อมูลตามข้อเท็จจริงจะไม่ส่งผลกระทบในทางลบต่อตัวฉัน',
+            'Q6 Comment',
             'Q7: หัวหน้างานของฉันสนับสนุนให้พนักงานรายงานปัญหาตามความเป็นจริง',
+            'Q7 Comment',
             'Q8: ฉันมีความเชื่อมั่นในตัวหัวหน้างานโดยตรง',
+            'Q8 Comment',
             'Q9: ข้อเสนอแนะ (ท่านคิดว่า องค์กรควรปรับปรุงเรื่องใดมากที่สุด เพื่อสร้างวัฒนธรรมการทำงานที่โปร่งใสและเปิดเผยข้อมูล)',
         ];
 
@@ -260,13 +276,21 @@ class SurveyResponseController extends Controller
             $output .= '        <Cell ss:StyleID="Center"><Data ss:Type="String">' . $statusText . '</Data></Cell>' . "\n";
             $output .= '        <Cell ss:StyleID="Center"><Data ss:Type="String">' . $submittedAt . '</Data></Cell>' . "\n";
             $output .= '        <Cell ss:StyleID="Center"><Data ss:Type="String">' . ($emp->q1 ?? '-') . '</Data></Cell>' . "\n";
+            $output .= '        <Cell><Data ss:Type="String">' . htmlspecialchars($emp->q1_comment ?? '', ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
             $output .= '        <Cell ss:StyleID="Center"><Data ss:Type="String">' . ($emp->q2 ?? '-') . '</Data></Cell>' . "\n";
+            $output .= '        <Cell><Data ss:Type="String">' . htmlspecialchars($emp->q2_comment ?? '', ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
             $output .= '        <Cell ss:StyleID="Center"><Data ss:Type="String">' . ($emp->q3 ?? '-') . '</Data></Cell>' . "\n";
+            $output .= '        <Cell><Data ss:Type="String">' . htmlspecialchars($emp->q3_comment ?? '', ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
             $output .= '        <Cell ss:StyleID="Center"><Data ss:Type="String">' . ($emp->q4 ?? '-') . '</Data></Cell>' . "\n";
+            $output .= '        <Cell><Data ss:Type="String">' . htmlspecialchars($emp->q4_comment ?? '', ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
             $output .= '        <Cell ss:StyleID="Center"><Data ss:Type="String">' . ($emp->q5 ?? '-') . '</Data></Cell>' . "\n";
+            $output .= '        <Cell><Data ss:Type="String">' . htmlspecialchars($emp->q5_comment ?? '', ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
             $output .= '        <Cell ss:StyleID="Center"><Data ss:Type="String">' . ($emp->q6 ?? '-') . '</Data></Cell>' . "\n";
+            $output .= '        <Cell><Data ss:Type="String">' . htmlspecialchars($emp->q6_comment ?? '', ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
             $output .= '        <Cell ss:StyleID="Center"><Data ss:Type="String">' . ($emp->q7 ?? '-') . '</Data></Cell>' . "\n";
+            $output .= '        <Cell><Data ss:Type="String">' . htmlspecialchars($emp->q7_comment ?? '', ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
             $output .= '        <Cell ss:StyleID="Center"><Data ss:Type="String">' . ($emp->q8 ?? '-') . '</Data></Cell>' . "\n";
+            $output .= '        <Cell><Data ss:Type="String">' . htmlspecialchars($emp->q8_comment ?? '', ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
             $output .= '        <Cell><Data ss:Type="String">' . htmlspecialchars($emp->q9 ?? '', ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
             $output .= '      </Row>' . "\n";
         }

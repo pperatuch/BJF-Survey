@@ -39,13 +39,21 @@ interface EmployeeResponse {
   email: string | null;
   access_code: string | null;
   q1: number | null;
+  q1_comment: string | null;
   q2: number | null;
+  q2_comment: string | null;
   q3: number | null;
+  q3_comment: string | null;
   q4: number | null;
+  q4_comment: string | null;
   q5: number | null;
+  q5_comment: string | null;
   q6: string | null;
+  q6_comment: string | null;
   q7: string | null;
+  q7_comment: string | null;
   q8: string | null;
+  q8_comment: string | null;
   q9: string | null;
   submitted_at: string | null;
 }
@@ -250,13 +258,21 @@ export default function SurveyResponsesPage() {
         'สถานะการตอบ',
         'วันเวลาที่ตอบ',
         'Q1: เมื่อเกิดปัญหาในการทำงาน พนักงานสามารถให้ข้อมูลข้อเท็จจริงได้อย่างเปิดเผย',
+        'Q1 Comment',
         'Q2: หน่วยงานต่างๆ ให้ความร่วมมือในการให้ข้อมูลครบถ้วนและถูกต้อง เมื่อมีการตรวจสอบหรือสอบถามข้อเท็จจริง',
+        'Q2 Comment',
         'Q3: เมื่อเกิดข้อผิดพลาด หัวหน้างานมุ่งเน้นการแก้ปัญหา มากกว่าการหาคนผิด',
+        'Q3 Comment',
         'Q4: ข้อผิดพลาดที่เกิดขึ้นได้รับการแก้ไขที่สาเหตุที่แท้จริง',
+        'Q4 Comment',
         'Q5: หากฉันพบความเสี่ยงหรือการปฏิบัติที่ไม่ถูกต้อง ฉันกล้าที่จะรายงาน',
+        'Q5 Comment',
         'Q6: ฉันมั่นใจว่าการให้ข้อมูลตามข้อเท็จจริงจะไม่ส่งผลกระทบในทางลบต่อตัวฉัน',
+        'Q6 Comment',
         'Q7: หัวหน้างานของฉันสนับสนุนให้พนักงานรายงานปัญหาตามความเป็นจริง',
+        'Q7 Comment',
         'Q8: ฉันมีความเชื่อมั่นในตัวหัวหน้างานโดยตรง',
+        'Q8 Comment',
         'Q9: ข้อเสนอแนะ (ท่านคิดว่า องค์กรควรปรับปรุงเรื่องใดมากที่สุด เพื่อสร้างวัฒนธรรมการทำงานที่โปร่งใสและเปิดเผยข้อมูล)',
       ];
 
@@ -279,13 +295,21 @@ export default function SurveyResponsesPage() {
           emp.submitted_at ? 'ตอบแล้ว' : 'ยังไม่ตอบ',
           emp.submitted_at ? formatDateTime(emp.submitted_at) : '-',
           emp.q1 ?? '-',
+          emp.q1_comment ?? '-',
           emp.q2 ?? '-',
+          emp.q2_comment ?? '-',
           emp.q3 ?? '-',
+          emp.q3_comment ?? '-',
           emp.q4 ?? '-',
+          emp.q4_comment ?? '-',
           emp.q5 ?? '-',
+          emp.q5_comment ?? '-',
           emp.q6 ?? '-',
+          emp.q6_comment ?? '-',
           emp.q7 ?? '-',
+          emp.q7_comment ?? '-',
           emp.q8 ?? '-',
+          emp.q8_comment ?? '-',
           emp.q9 ?? '-',
         ]);
       });
@@ -326,16 +350,16 @@ export default function SurveyResponsesPage() {
             // Row data styles
             const isEven = R % 2 === 0;
             const bgColor = isEven ? 'F8FAFC' : 'FFFFFF';
-            // Center aligned columns: emp_no (0), initial (2), bb_sub (8), access_code (9), status (10), submitted_at (11), q1-q8 (12 to 19)
-            const isCenterCol = [0, 2, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19].includes(C);
+            // Center aligned columns: emp_no (0), initial (2), bb_sub (8), access_code (9), status (10), submitted_at (11), q1-q8 & comments
+            const isCenterCol = [0, 2, 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26].includes(C);
 
             worksheet[cellRef].s = {
               font: { name: 'Sarabun', sz: 10, color: { rgb: '1E293B' } },
               fill: { fgColor: { rgb: bgColor } },
               alignment: {
-                vertical: 'center',
+                vertical: 'top',
                 horizontal: isCenterCol ? 'center' : 'left',
-                wrapText: C === 20, // wrap for Q9 open-ended suggestions
+                wrapText: [13, 15, 17, 19, 21, 23, 25, 27, 28].includes(C), // wrap comments & Q9
               },
               border: thinBorder,
             };
@@ -375,13 +399,21 @@ export default function SurveyResponsesPage() {
         { wch: 14 }, // สถานะ
         { wch: 20 }, // วันเวลาที่ตอบ
         { wch: 32 }, // Q1
+        { wch: 40 }, // Q1C
         { wch: 34 }, // Q2
+        { wch: 40 }, // Q2C
         { wch: 32 }, // Q3
+        { wch: 40 }, // Q3C
         { wch: 30 }, // Q4
+        { wch: 40 }, // Q4C
         { wch: 32 }, // Q5
+        { wch: 40 }, // Q5C
         { wch: 32 }, // Q6
+        { wch: 40 }, // Q6C
         { wch: 32 }, // Q7
+        { wch: 40 }, // Q7C
         { wch: 28 }, // Q8
+        { wch: 40 }, // Q8C
         { wch: 55 }, // Q9
       ];
 
@@ -513,29 +545,45 @@ export default function SurveyResponsesPage() {
   };
 
 
-  const renderRating = (score: number | null) => {
+  const renderRating = (score: number | null, comment?: string | null) => {
     if (score === null || score === undefined) {
       return <span className="text-slate-300 font-mono text-xs">-</span>;
     }
     const config = {
-      1: { bg: 'bg-rose-50 border-rose-200 text-rose-700', label: '1 (ไม่เคย)' },
-      2: { bg: 'bg-amber-50 border-amber-200 text-amber-700', label: '2 (บางครั้ง)' },
-      3: { bg: 'bg-emerald-50 border-emerald-200 text-emerald-700', label: '3 (เป็นประจำ)' },
+      1: { bg: 'bg-rose-50 border-rose-200 text-rose-700', label: 'ไม่เคย' },
+      2: { bg: 'bg-amber-50 border-amber-200 text-amber-700', label: 'บางครั้ง' },
+      3: { bg: 'bg-emerald-50 border-emerald-200 text-emerald-700', label: 'เป็นประจำ' },
     }[score] || { bg: 'bg-slate-100 border-slate-200 text-slate-700', label: String(score) };
     return (
-      <span title={config.label} className={`inline-flex items-center justify-center w-6 h-6 rounded-md text-[11px] font-bold border ${config.bg} shadow-2xs`}>
-        {score}
-      </span>
+      <div className="flex flex-col items-center justify-start h-full gap-2 py-1">
+        <span title={config.label} className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-[11px] font-bold border ${config.bg} shadow-2xs`}>
+          {config.label}
+        </span>
+        {comment && comment.trim() !== '' && (
+          <div className="text-[10px] text-slate-600 bg-white p-2 rounded-md border border-slate-200/80 shadow-xs w-full min-w-[140px] text-left flex items-start gap-1.5 break-words">
+             <span className="text-slate-400 shrink-0 mt-0.5">💬</span>
+             <span className="leading-relaxed">{comment}</span>
+          </div>
+        )}
+      </div>
     );
   };
 
-  const renderYesNo = (val: string | null) => {
+  const renderYesNo = (val: string | null, comment?: string | null) => {
     if (!val) return <span className="text-slate-300 font-mono text-xs">-</span>;
     const isYes = val.toLowerCase() === 'yes' || val === 'ใช่';
     return (
-      <span className={`inline-flex items-center justify-center px-1.5 py-0.5 min-w-[28px] rounded text-[10px] font-bold ${isYes ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}`}>
-        {isYes ? 'Yes' : 'No'}
-      </span>
+      <div className="flex flex-col items-center justify-start h-full gap-2 py-1">
+        <span className={`inline-flex items-center justify-center px-3 py-1 min-w-[36px] rounded-full text-[11px] font-bold whitespace-nowrap ${isYes ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}`}>
+          {isYes ? 'ใช่' : 'ไม่ใช่'}
+        </span>
+        {comment && comment.trim() !== '' && (
+          <div className="text-[10px] text-slate-600 bg-white p-2 rounded-md border border-slate-200/80 shadow-xs w-full min-w-[140px] text-left flex items-start gap-1.5 break-words">
+             <span className="text-slate-400 shrink-0 mt-0.5">💬</span>
+             <span className="leading-relaxed">{comment}</span>
+          </div>
+        )}
+      </div>
     );
   };
 
@@ -817,14 +865,14 @@ export default function SurveyResponsesPage() {
                               </span>
                             )}
                           </td>
-                          <td className="py-2.5 px-1 text-center bg-blue-50/20">{renderRating(emp.q1)}</td>
-                          <td className="py-2.5 px-1 text-center bg-blue-50/20">{renderRating(emp.q2)}</td>
-                          <td className="py-2.5 px-1 text-center bg-blue-50/20">{renderRating(emp.q3)}</td>
-                          <td className="py-2.5 px-1 text-center bg-blue-50/20">{renderRating(emp.q4)}</td>
-                          <td className="py-2.5 px-1 text-center bg-blue-50/20">{renderRating(emp.q5)}</td>
-                          <td className="py-2.5 px-1 text-center bg-indigo-50/20">{renderYesNo(emp.q6)}</td>
-                          <td className="py-2.5 px-1 text-center bg-indigo-50/20">{renderYesNo(emp.q7)}</td>
-                          <td className="py-2.5 px-1 text-center bg-indigo-50/20">{renderYesNo(emp.q8)}</td>
+                          <td className="py-2.5 px-3 align-top text-center bg-blue-50/20">{renderRating(emp.q1)}</td>
+                          <td className="py-2.5 px-3 align-top text-center bg-blue-50/20">{renderRating(emp.q2)}</td>
+                          <td className="py-2.5 px-3 align-top text-center bg-blue-50/20">{renderRating(emp.q3)}</td>
+                          <td className="py-2.5 px-3 align-top text-center bg-blue-50/20">{renderRating(emp.q4)}</td>
+                          <td className="py-2.5 px-3 align-top text-center bg-blue-50/20">{renderRating(emp.q5)}</td>
+                          <td className="py-2.5 px-3 align-top text-center bg-indigo-50/20">{renderYesNo(emp.q6)}</td>
+                          <td className="py-2.5 px-3 align-top text-center bg-indigo-50/20">{renderYesNo(emp.q7)}</td>
+                          <td className="py-2.5 px-3 align-top text-center bg-indigo-50/20">{renderYesNo(emp.q8)}</td>
                           <td className="py-2.5 px-1.5 text-center bg-purple-50/20">
                             {emp.q9 && emp.q9.trim() !== '' ? (
                               <span className="inline-flex items-center px-2 py-0.5 rounded text-[10.5px] font-bold bg-purple-100 text-purple-800 border border-purple-200 shadow-2xs">
@@ -957,16 +1005,16 @@ export default function SurveyResponsesPage() {
                           </td>
 
                           {/* Q1-Q5 Rating */}
-                          <td className="py-3 px-3 text-center bg-blue-50/20">{renderRating(emp.q1)}</td>
-                          <td className="py-3 px-3 text-center bg-blue-50/20">{renderRating(emp.q2)}</td>
-                          <td className="py-3 px-3 text-center bg-blue-50/20">{renderRating(emp.q3)}</td>
-                          <td className="py-3 px-3 text-center bg-blue-50/20">{renderRating(emp.q4)}</td>
-                          <td className="py-3 px-3 text-center bg-blue-50/20">{renderRating(emp.q5)}</td>
+                          <td className="py-3 px-3 align-top text-center bg-blue-50/20 min-w-[210px] w-56">{renderRating(emp.q1, emp.q1_comment)}</td>
+                          <td className="py-3 px-3 align-top text-center bg-blue-50/20 min-w-[220px] w-60">{renderRating(emp.q2, emp.q2_comment)}</td>
+                          <td className="py-3 px-3 align-top text-center bg-blue-50/20 min-w-[210px] w-56">{renderRating(emp.q3, emp.q3_comment)}</td>
+                          <td className="py-3 px-3 align-top text-center bg-blue-50/20 min-w-[200px] w-52">{renderRating(emp.q4, emp.q4_comment)}</td>
+                          <td className="py-3 px-3 align-top text-center bg-blue-50/20 min-w-[210px] w-56">{renderRating(emp.q5, emp.q5_comment)}</td>
 
                           {/* Q6-Q8 Yes/No */}
-                          <td className="py-3 px-3 text-center bg-indigo-50/20">{renderYesNo(emp.q6)}</td>
-                          <td className="py-3 px-3 text-center bg-indigo-50/20">{renderYesNo(emp.q7)}</td>
-                          <td className="py-3 px-3 text-center bg-indigo-50/20">{renderYesNo(emp.q8)}</td>
+                          <td className="py-3 px-3 align-top text-center bg-indigo-50/20 min-w-[210px] w-56">{renderYesNo(emp.q6, emp.q6_comment)}</td>
+                          <td className="py-3 px-3 align-top text-center bg-indigo-50/20 min-w-[210px] w-56">{renderYesNo(emp.q7, emp.q7_comment)}</td>
+                          <td className="py-3 px-3 align-top text-center bg-indigo-50/20 min-w-[190px] w-48">{renderYesNo(emp.q8, emp.q8_comment)}</td>
 
                           {/* Q9 Open Ended Answer Full Text */}
                           <td className="py-3 px-4 bg-purple-50/20 text-slate-700 leading-relaxed min-w-[280px] max-w-[380px]">
