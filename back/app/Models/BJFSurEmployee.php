@@ -19,6 +19,7 @@ class BJFSurEmployee extends Model
         'emp_title_th',
         'emp_name_th',
         'emp_initial',
+        'email',
         'company_code',
         'division_name',
         'department_name',

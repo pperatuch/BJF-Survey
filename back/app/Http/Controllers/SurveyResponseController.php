@@ -23,7 +23,12 @@ class SurveyResponseController extends Controller
                   ->orWhere('emp_title_th', 'like', "%{$search}%")
                   ->orWhere('emp_name_en', 'like', "%{$search}%")
                   ->orWhere('emp_initial', 'like', "%{$search}%")
-                  ->orWhere('position_title_en', 'like', "%{$search}%");
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('position_title_en', 'like', "%{$search}%")
+                  ->orWhere('division_name', 'like', "%{$search}%")
+                  ->orWhere('department_name', 'like', "%{$search}%")
+                  ->orWhere('section_name', 'like', "%{$search}%")
+                  ->orWhere('bb_sub', 'like', "%{$search}%");
             });
         }
 
@@ -62,8 +67,12 @@ class SurveyResponseController extends Controller
             'emp_no' => 'emp_no',
             'name' => 'emp_name_th',
             'emp_initial' => 'emp_initial',
+            'email' => 'email',
             'position' => 'position_title_en',
+            'division_name' => 'division_name',
+            'department_name' => 'department_name',
             'section' => 'section_name',
+            'bb_sub' => 'bb_sub',
             'access_code' => 'access_code',
             'status' => 'submitted_at',
             'submitted_at' => 'submitted_at',
@@ -95,8 +104,12 @@ class SurveyResponseController extends Controller
             'emp_title_th',
             'emp_name_th',
             'emp_initial',
+            'email',
             'position_title_en',
+            'division_name',
+            'department_name',
             'section_name',
+            'bb_sub',
             'access_code',
             'q1',
             'q2',
@@ -108,11 +121,9 @@ class SurveyResponseController extends Controller
             'q8',
             'q9',
             'submitted_at',
-
         ])
-        ->orderBy($orderCol, $orderDir)
-        ->paginate($perPage);
-
+            ->orderBy($orderCol, $orderDir)
+            ->paginate($perPage);
 
         return response()->json($responses);
     }
@@ -203,8 +214,12 @@ class SurveyResponseController extends Controller
             'รหัสพนักงาน',
             'ชื่อ-นามสกุล (ไทย)',
             'ชื่อเล่น',
+            'Email',
             'ตำแหน่ง',
-            'แผนก',
+            'Division Name',
+            'Department Name',
+            'Section Name',
+            'BB Sub',
             'Access Code',
             'สถานะการตอบ',
             'วันเวลาที่ตอบ',
@@ -235,8 +250,12 @@ class SurveyResponseController extends Controller
             $output .= '        <Cell ss:StyleID="Center"><Data ss:Type="String">' . htmlspecialchars($emp->emp_no ?? '', ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
             $output .= '        <Cell><Data ss:Type="String">' . htmlspecialchars($fullName ?: ($emp->emp_name_en ?? ''), ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
             $output .= '        <Cell ss:StyleID="Center"><Data ss:Type="String">' . htmlspecialchars($emp->emp_initial ?? '', ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
+            $output .= '        <Cell><Data ss:Type="String">' . htmlspecialchars($emp->email ?? '', ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
             $output .= '        <Cell><Data ss:Type="String">' . htmlspecialchars($emp->position_title_en ?? '', ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
+            $output .= '        <Cell><Data ss:Type="String">' . htmlspecialchars($emp->division_name ?? '', ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
+            $output .= '        <Cell><Data ss:Type="String">' . htmlspecialchars($emp->department_name ?? '', ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
             $output .= '        <Cell><Data ss:Type="String">' . htmlspecialchars($emp->section_name ?? '', ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
+            $output .= '        <Cell ss:StyleID="Center"><Data ss:Type="String">' . htmlspecialchars($emp->bb_sub ?? '', ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
             $output .= '        <Cell ss:StyleID="Center"><Data ss:Type="String">' . htmlspecialchars($emp->access_code ?? '', ENT_QUOTES, 'UTF-8') . '</Data></Cell>' . "\n";
             $output .= '        <Cell ss:StyleID="Center"><Data ss:Type="String">' . $statusText . '</Data></Cell>' . "\n";
             $output .= '        <Cell ss:StyleID="Center"><Data ss:Type="String">' . $submittedAt . '</Data></Cell>' . "\n";
