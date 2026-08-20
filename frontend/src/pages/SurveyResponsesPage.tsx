@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
 import api from '../lib/api';
 import XLSX from 'xlsx-js-style';
@@ -20,6 +20,7 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
+  ArrowLeftRight,
 } from 'lucide-react';
 
 
@@ -31,7 +32,11 @@ interface EmployeeResponse {
   emp_name_th: string | null;
   emp_initial: string | null;
   position_title_en: string | null;
+  division_name: string | null;
+  department_name: string | null;
   section_name: string | null;
+  bb_sub: string | null;
+  email: string | null;
   access_code: string | null;
   q1: number | null;
   q2: number | null;
@@ -86,6 +91,17 @@ export default function SurveyResponsesPage() {
   // Sorting State: 3 states (desc -> asc -> none)
   const [sortField, setSortField] = useState<string>('');
   const [sortDir, setSortDir] = useState<'asc' | 'desc' | ''>('');
+
+  const tableScrollRef = useRef<HTMLDivElement>(null);
+  const scrollTable = (direction: 'left' | 'right') => {
+    if (tableScrollRef.current) {
+      const scrollAmount = 450;
+      tableScrollRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth',
+      });
+    }
+  };
 
 
   // Debounce search
@@ -631,14 +647,36 @@ export default function SurveyResponsesPage() {
               </div>
             )}
             {sortField && (
-              <button onClick={() => { setSortField(''); setSortDir(''); setCurrentPage(1); }} className="flex items-center space-x-1.5 px-2.5 py-1.5 bg-blue-50 text-[#0B3C5D] border border-blue-200 rounded-xl text-xs font-semibold cursor-pointer">
+            <button onClick={() => { setSortField(''); setSortDir(''); setCurrentPage(1); }} className="flex items-center space-x-1.5 px-2.5 py-1.5 bg-blue-50 text-[#0B3C5D] border border-blue-200 rounded-xl text-xs font-semibold cursor-pointer">
                 <span>รีเซ็ตการเรียง</span>
                 <X className="w-3 h-3" />
               </button>
             )}
-            <button onClick={handleRefresh} disabled={refreshing} className="p-2 text-slate-500 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer">
+            <button onClick={handleRefresh} disabled={refreshing} className="p-2 text-slate-500 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors" title="รีเฟรชข้อมูล">
               <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
             </button>
+
+            {/* Quick Horizontal Scroll Nav at the Top */}
+            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-2xs">
+              <button
+                onClick={() => scrollTable('left')}
+                className="p-1.5 rounded-lg bg-white text-slate-700 hover:bg-blue-50 hover:text-[#0B3C5D] transition-colors cursor-pointer border border-slate-200/60 shadow-2xs"
+                title="เลื่อนตารางไปทางซ้าย"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+              </button>
+              <div className="flex items-center gap-1 px-2 text-[10.5px] font-bold text-slate-600 select-none">
+                <ArrowLeftRight className="w-3 h-3 text-[#0B3C5D]" />
+                <span>เลื่อนตาราง ซ้าย-ขวา</span>
+              </div>
+              <button
+                onClick={() => scrollTable('right')}
+                className="p-1.5 rounded-lg bg-white text-slate-700 hover:bg-blue-50 hover:text-[#0B3C5D] transition-colors cursor-pointer border border-slate-200/60 shadow-2xs"
+                title="เลื่อนตารางไปทางขวา"
+              >
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <button onClick={handleExportAccessCodes} className="flex items-center space-x-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer">
@@ -652,8 +690,9 @@ export default function SurveyResponsesPage() {
           </div>
         </div>
 
+
         <div className="bg-white rounded-2xl border border-gray-200/70 shadow-xs overflow-hidden">
-          <div className="overflow-x-auto">
+          <div ref={tableScrollRef} className="overflow-x-auto custom-scrollbar">
             {activeTab === 'SUMMARY' ? (
               /* --- TAB 1: SUMMARY (Sticky 4 Columns + 3-State Sorting) --- */
               <table className="w-full text-left border-collapse text-xs">
@@ -663,7 +702,11 @@ export default function SurveyResponsesPage() {
                     {renderSortHeader('name', 'ชื่อ-นามสกุล (ไทย)', 'min-w-[190px] whitespace-nowrap', 'left', 'bg-[#F0F4F8]', 'sticky left-[105px] z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.06)]')}
                     {renderSortHeader('emp_initial', 'ชื่อเล่น', 'min-w-[80px] w-20 whitespace-nowrap', 'center', 'bg-[#F0F4F8]', 'sticky left-[295px] z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.06)]')}
                     {renderSortHeader('position', 'ตำแหน่ง', 'min-w-[150px] whitespace-nowrap', 'left', 'bg-[#F0F4F8]', 'sticky left-[375px] z-20 shadow-[4px_0_8px_-3px_rgba(0,0,0,0.1)]')}
-                    {renderSortHeader('section', 'แผนก', 'min-w-[110px] whitespace-nowrap', 'left')}
+                    {renderSortHeader('email', 'Email', 'min-w-[150px] whitespace-nowrap', 'left')}
+                    {renderSortHeader('division_name', 'Division Name', 'min-w-[120px] whitespace-nowrap', 'left')}
+                    {renderSortHeader('department_name', 'Department Name', 'min-w-[130px] whitespace-nowrap', 'left')}
+                    {renderSortHeader('section', 'Section Name', 'min-w-[130px] whitespace-nowrap', 'left')}
+                    {renderSortHeader('bb_sub', 'BB Sub', 'min-w-[80px] whitespace-nowrap', 'center')}
                     {renderSortHeader('access_code', 'ACCESS CODE', 'w-24 whitespace-nowrap', 'center')}
                     {renderSortHeader('status', 'สถานะ', 'w-20 whitespace-nowrap', 'center')}
                     {renderSortHeader('q1', 'Q1', 'w-10', 'center', 'bg-blue-50/60', 'text-blue-800')}
@@ -680,7 +723,7 @@ export default function SurveyResponsesPage() {
                 <tbody className="divide-y divide-slate-100 text-xs">
                   {loading ? (
                     <tr>
-                      <td colSpan={16} className="py-16 text-center text-slate-400">
+                      <td colSpan={20} className="py-16 text-center text-slate-400">
                         <div className="flex flex-col items-center justify-center space-y-2">
                           <RefreshCw className="w-6 h-6 animate-spin text-blue-600" />
                           <span>กำลังโหลดข้อมูล...</span>
@@ -689,7 +732,7 @@ export default function SurveyResponsesPage() {
                     </tr>
                   ) : data.length === 0 ? (
                     <tr>
-                      <td colSpan={16} className="py-16 text-center text-slate-400">
+                      <td colSpan={20} className="py-16 text-center text-slate-400">
                         ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา
                       </td>
                     </tr>
@@ -705,15 +748,12 @@ export default function SurveyResponsesPage() {
                           key={emp.id}
                           className={`transition-colors hover:bg-blue-50/30 ${rowBg}`}
                         >
-                          {/* 1. Sticky emp_no */}
                           <td className={`py-2.5 px-2.5 font-mono font-bold text-slate-900 text-center text-xs sticky left-0 z-10 ${rowBg} shadow-[2px_0_5px_-2px_rgba(0,0,0,0.06)] whitespace-nowrap`}>
                             {emp.emp_no}
                           </td>
-                          {/* 2. Sticky name */}
                           <td className={`py-2.5 px-3 font-medium text-slate-900 whitespace-nowrap text-xs sticky left-[105px] z-10 ${rowBg} shadow-[2px_0_5px_-2px_rgba(0,0,0,0.06)]`}>
                             {fullName}
                           </td>
-                          {/* 3. Sticky initial */}
                           <td className={`py-2.5 px-1 text-center text-slate-600 font-medium sticky left-[295px] z-10 ${rowBg} shadow-[2px_0_5px_-2px_rgba(0,0,0,0.06)] whitespace-nowrap`}>
                             {emp.emp_initial ? (
                               <span className="inline-block px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 text-[11px]">
@@ -723,14 +763,30 @@ export default function SurveyResponsesPage() {
                               '-'
                             )}
                           </td>
-                          {/* 4. Sticky position */}
-                          <td className={`py-2.5 px-2.5 text-slate-600 truncate max-w-[150px] text-xs sticky left-[375px] z-10 ${rowBg} shadow-[4px_0_8px_-3px_rgba(0,0,0,0.1)]`} title={emp.position_title_en || ''}>
-                            {emp.position_title_en || '-'}
+                          <td className={`py-2.5 px-2.5 text-slate-600 text-xs sticky left-[375px] z-10 ${rowBg} shadow-[4px_0_8px_-3px_rgba(0,0,0,0.1)]`} title={emp.position_title_en || ''}>
+                             {emp.position_title_en || '-'}
                           </td>
 
-                          {/* Remaining columns */}
-                          <td className="py-2.5 px-2 text-slate-600 truncate max-w-[120px] text-xs" title={emp.section_name || ''}>
+                           <td className="py-2.5 px-2 text-slate-600 text-xs" title={emp.email || ''}>
+                             {emp.email || '-'}
+                           </td>
+                          <td className="py-2.5 px-2 text-slate-600 truncate max-w-[130px] text-xs" title={emp.division_name || ''}>
+                            {emp.division_name || '-'}
+                          </td>
+                          <td className="py-2.5 px-2 text-slate-600 truncate max-w-[130px] text-xs" title={emp.department_name || ''}>
+                            {emp.department_name || '-'}
+                          </td>
+                          <td className="py-2.5 px-2 text-slate-600 truncate max-w-[130px] text-xs" title={emp.section_name || ''}>
                             {emp.section_name || '-'}
+                          </td>
+                          <td className="py-2.5 px-1.5 text-center text-slate-600 font-medium whitespace-nowrap text-xs">
+                            {emp.bb_sub ? (
+                              <span className="inline-block px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 text-[11px]">
+                                {emp.bb_sub}
+                              </span>
+                            ) : (
+                              '-'
+                            )}
                           </td>
                           <td className="py-2.5 px-1.5 text-center whitespace-nowrap">
                             <span className="font-mono text-[11px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
@@ -773,21 +829,19 @@ export default function SurveyResponsesPage() {
               </table>
             ) : (
               /* --- TAB 2: RESPONSES (Sticky 4 Columns + Full Multiline Question Headers) --- */
-              <table className="w-full text-left border-collapse min-w-[1900px]">
+              <table className="w-full text-left border-collapse min-w-[2350px]">
                 <thead>
                   <tr className="border-b-2 border-[#0B3C5D]/10 text-[10.5px] font-bold tracking-tight text-[#0B3C5D]/80 select-none">
-                    {/* Sticky 1: emp_no (left: 0) */}
                     {renderSortHeader('emp_no', 'รหัสพนักงาน', 'min-w-[105px] w-28 whitespace-nowrap', 'center', 'bg-[#F0F4F8]', 'sticky left-0 z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.06)]')}
-                    {/* Sticky 2: name (left: 105px) */}
                     {renderSortHeader('name', 'ชื่อ-นามสกุล (ไทย)', 'min-w-[190px] whitespace-nowrap', 'left', 'bg-[#F0F4F8]', 'sticky left-[105px] z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.06)]')}
-                    {/* Sticky 3: emp_initial (left: 295px) */}
                     {renderSortHeader('emp_initial', 'ชื่อเล่น', 'min-w-[80px] w-20 whitespace-nowrap', 'center', 'bg-[#F0F4F8]', 'sticky left-[295px] z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.06)]')}
-                    {/* Sticky 4: position (left: 375px) */}
                     {renderSortHeader('position', 'ตำแหน่ง', 'min-w-[150px] whitespace-nowrap', 'left', 'bg-[#F0F4F8]', 'sticky left-[375px] z-20 shadow-[4px_0_8px_-3px_rgba(0,0,0,0.1)]')}
-                    
-                    {/* Other Columns */}
                     {renderSortHeader('submitted_at', 'วันที่-เวลาที่ตอบ', 'min-w-[140px] whitespace-nowrap', 'left', 'bg-[#F0F4F8]')}
-                    {renderSortHeader('section', 'แผนก', 'min-w-[120px] whitespace-nowrap', 'left')}
+                    {renderSortHeader('email', 'Email', 'min-w-[150px] whitespace-nowrap', 'left')}
+                    {renderSortHeader('division_name', 'Division Name', 'min-w-[120px] whitespace-nowrap', 'left')}
+                    {renderSortHeader('department_name', 'Department Name', 'min-w-[130px] whitespace-nowrap', 'left')}
+                    {renderSortHeader('section', 'Section Name', 'min-w-[130px] whitespace-nowrap', 'left')}
+                    {renderSortHeader('bb_sub', 'BB Sub', 'min-w-[80px] whitespace-nowrap', 'center')}
                     {renderSortHeader('access_code', 'ACCESS CODE', 'w-24 whitespace-nowrap', 'center')}
                     {renderSortHeader('q1', 'Q1: เมื่อเกิดปัญหาในการทำงาน พนักงานสามารถให้ข้อมูลข้อเท็จจริงได้อย่างเปิดเผย', 'min-w-[210px] w-56', 'left', 'bg-blue-50/70', 'text-blue-950 font-bold')}
                     {renderSortHeader('q2', 'Q2: หน่วยงานต่างๆ ให้ความร่วมมือในการให้ข้อมูลครบถ้วนและถูกต้อง เมื่อมีการตรวจสอบหรือสอบถามข้อเท็จจริง', 'min-w-[220px] w-60', 'left', 'bg-blue-50/70', 'text-blue-950 font-bold')}
@@ -804,7 +858,7 @@ export default function SurveyResponsesPage() {
                 <tbody className="divide-y divide-slate-100 text-xs">
                   {loading ? (
                     <tr>
-                      <td colSpan={16} className="py-16 text-center text-slate-400">
+                      <td colSpan={20} className="py-16 text-center text-slate-400">
                         <div className="flex flex-col items-center justify-center space-y-2">
                           <RefreshCw className="w-6 h-6 animate-spin text-blue-600" />
                           <span>กำลังโหลดข้อมูล...</span>
@@ -813,7 +867,7 @@ export default function SurveyResponsesPage() {
                     </tr>
                   ) : data.length === 0 ? (
                     <tr>
-                      <td colSpan={16} className="py-16 text-center text-slate-400">
+                      <td colSpan={20} className="py-16 text-center text-slate-400">
                         ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา
                       </td>
                     </tr>
@@ -832,8 +886,6 @@ export default function SurveyResponsesPage() {
                           <td className={`py-3 px-3 font-mono font-bold text-slate-900 text-center sticky left-0 z-10 ${rowBg} shadow-[2px_0_5px_-2px_rgba(0,0,0,0.06)] whitespace-nowrap`}>
                             {emp.emp_no}
                           </td>
-
-                          {/* 2. Sticky Name (TH) */}
                           <td className={`py-3 px-4 font-medium text-slate-900 whitespace-nowrap sticky left-[105px] z-10 ${rowBg} shadow-[2px_0_5px_-2px_rgba(0,0,0,0.06)]`}>
                             {fullName}
                           </td>
@@ -850,7 +902,7 @@ export default function SurveyResponsesPage() {
                           </td>
 
                           {/* 4. Sticky Position */}
-                          <td className={`py-3 px-3 text-slate-600 truncate max-w-[150px] sticky left-[375px] z-10 ${rowBg} shadow-[4px_0_8px_-3px_rgba(0,0,0,0.1)]`} title={emp.position_title_en || ''}>
+                          <td className={`py-3 px-3 text-slate-600 sticky left-[375px] z-10 ${rowBg} shadow-[4px_0_8px_-3px_rgba(0,0,0,0.1)]`} title={emp.position_title_en || ''}>
                             {emp.position_title_en || '-'}
                           </td>
 
@@ -859,11 +911,30 @@ export default function SurveyResponsesPage() {
                             {formatDateTime(emp.submitted_at)}
                           </td>
 
-                          {/* Section */}
+                          {/* Email Column */}
+                          <td className="py-3 px-3 text-slate-600" title={emp.email || ''}>
+                            {emp.email || '-'}
+                          </td>
+
+                          {/* 4 Org Structure Columns */}
+                          <td className="py-3 px-3 text-slate-600 truncate max-w-[130px]" title={emp.division_name || ''}>
+                            {emp.division_name || '-'}
+                          </td>
+                          <td className="py-3 px-3 text-slate-600 truncate max-w-[130px]" title={emp.department_name || ''}>
+                            {emp.department_name || '-'}
+                          </td>
                           <td className="py-3 px-3 text-slate-600 truncate max-w-[130px]" title={emp.section_name || ''}>
                             {emp.section_name || '-'}
                           </td>
-
+                          <td className="py-3 px-2 text-center text-slate-600 font-medium whitespace-nowrap text-xs">
+                            {emp.bb_sub ? (
+                              <span className="inline-block px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[11px]">
+                                {emp.bb_sub}
+                              </span>
+                            ) : (
+                              '-'
+                            )}
+                          </td>
 
                           {/* Access Code */}
                           <td className="py-3 px-3 text-center">
